@@ -18,6 +18,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -30,6 +31,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,6 +44,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static android.os.Looper.getMainLooper;
+import static android.widget.GridLayout.HORIZONTAL;
+import static android.widget.GridLayout.VERTICAL;
 
 
 /**
@@ -53,12 +57,14 @@ public class Fragment_1 extends Fragment {
     private List<Apk> apks;
     private PackageManager pm;
     private boolean isChecked;
+    private boolean isSys;
     private AdapterInstalledApps adapter;
     private boolean isAllChecked;
     private List<ApplicationInfo> listofApkstoBackup;
     private Handler handler;
     SharedPreferences preferences;
     Button backup;
+    String rootPath;
 
     public Fragment_1() {
         // Required empty public constructor
@@ -75,12 +81,14 @@ public class Fragment_1 extends Fragment {
         recyclerView = v.findViewById(R.id.recyclerView);
         pm = getActivity().getPackageManager();
         isChecked = false;
+        isSys = false;
         isAllChecked = true;
         apks = new ArrayList<>();
         listofApkstoBackup = new ArrayList<>();
         handler = new Handler(getMainLooper());
         backup = v.findViewById(R.id.backUp);
-
+        rootPath=Environment.getExternalStorageDirectory()
+                .getAbsolutePath() + "/App_Backup_Pro/";
         return v;
 
 
@@ -93,17 +101,34 @@ public class Fragment_1 extends Fragment {
 
         recyclerView.hasFixedSize();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        AdapterInstalledApps adapter = new AdapterInstalledApps(getActivity(), apks);
+        DividerItemDecoration itemDecor = new DividerItemDecoration(getActivity(), HORIZONTAL);
+        itemDecor.setOrientation(VERTICAL);
+        recyclerView.addItemDecoration(itemDecor);
+
+        adapter = new AdapterInstalledApps(getActivity(), apks);
         recyclerView.setAdapter(adapter);
         getStoragePermission();
         createDirectory();
-        //getApks(false);
-        try {
+        getApks(false);
+
+        backup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                backupApks();
+                Toast.makeText(getActivity(), "Backing Upp", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+
+
+        /*try {
             getArchivedapks();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-
+*/
     }
 
 
@@ -111,14 +136,6 @@ public class Fragment_1 extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        backup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Toast.makeText(getContext(), "Toast", Toast.LENGTH_SHORT).show();
-
-            }
-        });
 
     }
 
@@ -132,6 +149,11 @@ public class Fragment_1 extends Fragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+    adapter.notifyDataSetChanged();
+    }
 
     public void getApks(boolean isSys) {
 
@@ -139,7 +161,11 @@ public class Fragment_1 extends Fragment {
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ApplicationInfo> apps = pm.getInstalledApplications(0);
         Collections.sort(apps, new ApplicationInfo.DisplayNameComparator(pm));
+        Log.e("App Size ", "" + apps.size());
+        int i = 0;
         for (ApplicationInfo app : apps) {
+            Log.e("App ", "" + i++);
+
 
             if (isSys) {
                 Apk apk = new Apk((String) app.loadLabel(pm), app.loadIcon(pm), app, isChecked);
@@ -154,9 +180,90 @@ public class Fragment_1 extends Fragment {
                     apks.add(apk);
                 }
 
-
+                Log.e("Size ", "" + apks.size());
             }
         }
+
+
+    }
+
+
+    public void backupApks() {
+        createDirectory();
+        //adapter.notifyDataSetChanged();
+        Log.e("Apksssssssss",apks.toString());
+        for (Apk apk : apks) {
+
+            if (apk.isChecked()) {
+                listofApkstoBackup.add(apk.getAppInfo());
+                Log.e("AppName", " " + apk.getAppName());
+            }
+        }
+        if (listofApkstoBackup.size() == 0) {
+
+            Toast.makeText(getActivity(), "No Apps Selected", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getActivity(), "Backing Up", Toast.LENGTH_SHORT).show();
+            Log.e("Apps", (listofApkstoBackup.size()) + "");
+
+                writeData(listofApkstoBackup);
+
+            listofApkstoBackup.clear();
+            uncheckAllBoxes();
+        }
+
+
+    }
+
+    public void writeData(List<ApplicationInfo> listapks) {
+        for (ApplicationInfo info : listapks) {
+            Log.e("Size------  ", listapks.size() + "  ");
+            try {
+                File f1 = new File(info.sourceDir);
+
+                String file_name = info.loadLabel(pm).toString();
+                File f2 = new File(rootPath);
+                if (!f2.exists()) {
+                    f2.mkdirs();
+                }
+                Log.e("Backing up ", file_name);
+                f2 = new File(f2.getPath() + "/" + file_name + ".apk");
+                f2.createNewFile();
+                InputStream in = new FileInputStream(f1);
+                FileOutputStream out = new FileOutputStream(f2);
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                Log.e("BackUp Complete ", file_name);
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+    }
+
+    public void uncheckAllBoxes() {
+
+        for (Apk apk : apks) {
+            apk.setChecked(false);
+
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+
+    public void checkAllBoxes() {
+        for (Apk apk : apks) {
+            apk.setChecked(true);
+
+        }
+
+        adapter.notifyDataSetChanged();
 
 
     }
@@ -170,8 +277,8 @@ public class Fragment_1 extends Fragment {
         for (File file : files) {
             Log.e("FilesName", "" + file.getName());
             //Package p=Package.getPackage(file.getName());
-            PackageInfo packinfo = pm.getPackageArchiveInfo(path+"/"+file.getName(), PackageManager.GET_META_DATA);
-            Log.e("FilespackInfo",""+packinfo.applicationInfo.loadLabel(pm));
+            PackageInfo packinfo = pm.getPackageArchiveInfo(path + "/" + file.getName(), PackageManager.GET_META_DATA);
+            Log.e("FilespackInfo", "" + packinfo.applicationInfo.loadLabel(pm));
             ApplicationInfo info = pm.getApplicationInfo(packinfo.packageName, PackageManager.GET_META_DATA);
             //   Toast.makeText(getActivity(), ""+p, Toast.LENGTH_SHORT).show();
             //Log.d("Files",""+p+"  "+p.getName()+"  "+p.getSpecificationVersion());
@@ -211,8 +318,6 @@ public class Fragment_1 extends Fragment {
 
 
     public void createDirectory() {
-        String rootPath = Environment.getExternalStorageDirectory()
-                .getAbsolutePath() + "/App_Backup_Pro/";
         File f2 = new File(rootPath);
         if (!f2.exists()) {
             f2.mkdirs();

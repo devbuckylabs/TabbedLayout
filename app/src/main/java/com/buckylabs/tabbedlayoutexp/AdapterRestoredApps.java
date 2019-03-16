@@ -14,12 +14,13 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledApps.ViewHolder> {
+public class AdapterRestoredApps  extends RecyclerView.Adapter<AdapterRestoredApps.ViewHolder>{
 
-    List<Apk> apks=new ArrayList<>();
+
+    List<Apk> apks;
     Context context;
 
-    public AdapterInstalledApps(Context context,List<Apk> apks) {
+    public AdapterRestoredApps(Context context,List<Apk> apks) {
         this.apks = apks;
         this.context = context;
 
@@ -27,18 +28,19 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
 
     @NonNull
     @Override
-    public AdapterInstalledApps.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public AdapterRestoredApps.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
-        View v= LayoutInflater.from(context).inflate(R.layout.list_item,viewGroup,false);
+        View v= LayoutInflater.from(context).inflate(R.layout.list_item_restore,viewGroup,false);
 
-        return new ViewHolder(v);
+        return new AdapterRestoredApps.ViewHolder(v);
     }
 
+
     @Override
-    public void onBindViewHolder(@NonNull AdapterInstalledApps.ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
 
         final Apk apk = apks.get(i);
-        Log.e("APPPPP",""+apk.getAppName());
+        Log.e("Archive Bind",apk.toString());
         viewHolder.appName.setText(apk.getAppName());
         viewHolder.appIcon.setImageDrawable(apk.getAppIcon());
         viewHolder.checkBox.setChecked(apk.isChecked());
@@ -62,9 +64,9 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            appName = itemView.findViewById(R.id.textView);
-            appIcon = itemView.findViewById(R.id.imageView);
-            checkBox = itemView.findViewById(R.id.checkBox);
+            appName = itemView.findViewById(R.id.textViewRestore);
+            appIcon = itemView.findViewById(R.id.imageViewRestore);
+            checkBox = itemView.findViewById(R.id.checkBoxRestore);
             itemView.setOnClickListener(this);
         }
 

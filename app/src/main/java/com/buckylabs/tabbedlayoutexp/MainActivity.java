@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
 
+
     }
 
     private void setupViewPager(ViewPager mViewPager) {

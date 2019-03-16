@@ -50,5 +50,13 @@ public class Apk {
         isChecked = checked;
     }
 
-
+    @Override
+    public String toString() {
+        return "Apk{" +
+                "AppName='" + AppName + '\'' +
+                ", AppIcon=" + AppIcon +
+                ", AppInfo=" + AppInfo +
+                ", isChecked=" + isChecked +
+                '}';
+    }
 }
