@@ -164,22 +164,20 @@ public class Fragment_1 extends Fragment {
     public void getArchivedapks() throws PackageManager.NameNotFoundException {
 
 
-
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup_Pro";
         File directory = new File(path);
         File[] files = directory.listFiles();
-        for (File file:files)
-        {
-
-            Package p=Package.getPackage(file.getName());
-            //PackageInfo info=pm.getApplicationInfo()
-
-              ApplicationInfo info=pm.getApplicationInfo("com.andsuper.bucket",PackageManager.GET_META_DATA);
+        for (File file : files) {
+            Log.e("FilesName", "" + file.getName());
+            //Package p=Package.getPackage(file.getName());
+            PackageInfo packinfo = pm.getPackageArchiveInfo(path+"/"+file.getName(), PackageManager.GET_META_DATA);
+            Log.e("FilespackInfo",""+packinfo.applicationInfo.loadLabel(pm));
+            ApplicationInfo info = pm.getApplicationInfo(packinfo.packageName, PackageManager.GET_META_DATA);
             //   Toast.makeText(getActivity(), ""+p, Toast.LENGTH_SHORT).show();
-            Log.d("Files",""+p+"  "+p.getName()+"  "+p.getSpecificationVersion());
-             Log.d("FilesInfo",""+info.loadLabel(pm));
-             Apk apk = new Apk(info.loadLabel(pm).toString(), info.loadIcon(pm), info, false);
-              apks.add(apk);
+            //Log.d("Files",""+p+"  "+p.getName()+"  "+p.getSpecificationVersion());
+            Log.e("FilesInfo", "" + info.loadLabel(pm));
+            Apk apk = new Apk(info.loadLabel(pm).toString(), info.loadIcon(pm), info, false);
+            apks.add(apk);
 
         }
 
@@ -189,8 +187,8 @@ public class Fragment_1 extends Fragment {
 
 
 
-
-       /* String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup_Pro";
+/*
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup_Pro";
         File directory = new File(path);
         File[] files = directory.listFiles();
         for (File file:files)
@@ -205,12 +203,11 @@ public class Fragment_1 extends Fragment {
             apks.add(apk);
 
         }
-*/
+
+    */
+
 
     }
-
-
-
 
 
     public void createDirectory() {
