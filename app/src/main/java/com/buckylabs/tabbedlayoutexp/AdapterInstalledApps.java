@@ -38,7 +38,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
     public void onBindViewHolder(@NonNull AdapterInstalledApps.ViewHolder viewHolder, int i) {
 
         final Apk apk = apks.get(i);
-        Log.e("APPPPP",""+apk.getAppName());
+       // Log.e("APPPPP",""+apk.getAppName());
         viewHolder.appName.setText(apk.getAppName());
         viewHolder.appIcon.setImageDrawable(apk.getAppIcon());
         viewHolder.checkBox.setChecked(apk.isChecked());

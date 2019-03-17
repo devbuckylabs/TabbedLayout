@@ -14,6 +14,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.AppLaunchChecker;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.DividerItemDecoration;
@@ -47,6 +48,7 @@ public class Fragment_2 extends Fragment {
     private PackageManager pm;
     private boolean isChecked;
     private AdapterRestoredApps adapter;
+    private List<ApplicationInfo> listofArchivedApks;
     private List<ApplicationInfo> listofApkstoRestore;
     private Handler handler;
     SharedPreferences preferences;
@@ -69,6 +71,7 @@ public class Fragment_2 extends Fragment {
         //isAllChecked = true;
         apks = new ArrayList<>();
         listofApkstoRestore = new ArrayList<>();
+        listofArchivedApks=new ArrayList<>();
         handler = new Handler(getMainLooper());
         restore = v.findViewById(R.id.restore);
         rootPath = Environment.getExternalStorageDirectory()
@@ -137,15 +140,26 @@ public class Fragment_2 extends Fragment {
             //   Toast.makeText(getActivity(), ""+p, Toast.LENGTH_SHORT).show();
             //Log.d("Files",""+p+"  "+p.getName()+"  "+p.getSpecificationVersion());
             Log.e("Archive FilesInfo", "" + info.loadLabel(pm));
-            Apk apk = new Apk(info.loadLabel(pm).toString(), info.loadIcon(pm), info, false);
-            apks.add(apk);
 
-
+            listofArchivedApks.add(info);
+            /*Apk apk = new Apk(info.loadLabel(pm).toString(), info.loadIcon(pm), info, false);
+            apks.add(apk);*/
         }
 
-        archivedAppsSize=apks.size();
+        readdata(listofArchivedApks);
+
+        archivedAppsSize=listofArchivedApks.size();
     }
 
+    public void readdata(List<ApplicationInfo> apps){
+        Collections.sort(apps, new ApplicationInfo.DisplayNameComparator(pm));
+        for(ApplicationInfo info:apps){
+            Apk apk = new Apk(info.loadLabel(pm).toString(), info.loadIcon(pm), info, false);
+            apks.add(apk);
+        }
+
+
+    }
 
 
     public void InstallApplication() throws PackageManager.NameNotFoundException {
@@ -156,13 +170,17 @@ public class Fragment_2 extends Fragment {
             if (apk.isChecked()) {
 
                 listofApkstoRestore.add(apk.getAppInfo());
+                Log.e("checkedFor",apk.getAppName());
 
             }
+        }
             if (listofApkstoRestore.size() == 0) {
 
                 Toast.makeText(getActivity(), "No Apps Selected", Toast.LENGTH_SHORT).show();
             } else {
 
+                Log.e("checkedFor",listofApkstoRestore.toString());
+int i=0;
                 for (ApplicationInfo info : listofApkstoRestore) {
 
                     PackageInfo packageInfo = pm.getPackageInfo(info.packageName, PackageManager.GET_META_DATA);
@@ -170,7 +188,7 @@ public class Fragment_2 extends Fragment {
                         Log.e("DataPackage", "PackageName :" + packageInfo.packageName + "  VersionName  :" + packageInfo.versionName + "  VersionCode : " + packageInfo.getLongVersionCode() + "");
                     }
 
-                    Log.e("Noob", info.loadLabel(pm).toString());
+                    Log.e("Noob "+i++, info.loadLabel(pm).toString());
 
                     //PackageInfo packinfo=pm.getPackageInfo(apk.getAppName(),PackageManager.GET_META_DATA);
                     File file = new File(rootPath, info.loadLabel(pm).toString() + ".apk");
@@ -190,7 +208,6 @@ public class Fragment_2 extends Fragment {
                 }
             }
 
-        }
         listofApkstoRestore.clear();
         uncheckAllBoxes();
 

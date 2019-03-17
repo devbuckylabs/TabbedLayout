@@ -87,11 +87,13 @@ public class MainActivity extends AppCompatActivity {
                 if(tabLayout.getSelectedTabPosition()==0){
 
                     button.setText("BACKUP");
-                    ((Fragment_1)mSectionsPagerAdapter.getItem(0)).refresh();
+
+
 
                 }else {
+
                     button.setText("RESTORE");
-                    ((Fragment_2)mSectionsPagerAdapter.getItem(1)).refresh();
+
 
                 }
             }
@@ -120,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
         Tab tab2=tabLayout.getTabAt(1);
         int restoredAppsSize=((Fragment_2)mSectionsPagerAdapter.getItem(1)).getArchivedAppsSize();
         tab2.setText("Archived Apps  "+"( "+restoredAppsSize+" )");
-
     }
 
     private void setupViewPager (ViewPager mViewPager){

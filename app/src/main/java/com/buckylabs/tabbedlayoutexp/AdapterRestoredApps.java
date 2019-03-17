@@ -40,7 +40,7 @@ public class AdapterRestoredApps  extends RecyclerView.Adapter<AdapterRestoredAp
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
 
         final Apk apk = apks.get(i);
-        Log.e("Archive Bind",apk.toString());
+       // Log.e("Archive Bind",apk.toString());
         viewHolder.appName.setText(apk.getAppName());
         viewHolder.appIcon.setImageDrawable(apk.getAppIcon());
         viewHolder.checkBox.setChecked(apk.isChecked());
