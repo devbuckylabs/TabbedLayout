@@ -1,6 +1,8 @@
 package com.buckylabs.tabbedlayoutexp;
 
+import android.content.pm.PackageManager;
 import android.support.design.widget.TabLayout;
+import android.support.design.widget.TabLayout.Tab;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,13 +19,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private PageAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private TabLayout tabLayout;
+    private Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,20 +46,89 @@ public class MainActivity extends AppCompatActivity {
         setupViewPager(mViewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
+        /*Tab tab=tabLayout.getTabAt(0);
+        int installedAppsSize=((Fragment_1)mSectionsPagerAdapter.getItem(0)).installedAppsSize;
+        tab.setText("Installed Apps "+"("+installedAppsSize+")");*/
+
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
 
+        button=findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (tabLayout.getSelectedTabPosition() == 0) {
+                    Toast.makeText(MainActivity.this, "Installed   ", Toast.LENGTH_SHORT).show();
+                    TabLayout.Tab tab=tabLayout.getTabAt(0);
+
+                    ((Fragment_1)mSectionsPagerAdapter.getItem(0)).backupApks();
+
+
+
+                }else {
+                    Toast.makeText(MainActivity.this, "Restored   ", Toast.LENGTH_SHORT).show();
+                    try {
+                        ((Fragment_2)mSectionsPagerAdapter.getItem(1)).InstallApplication();
+                    } catch (PackageManager.NameNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+                    }
+
+        });
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+
+                if(tabLayout.getSelectedTabPosition()==0){
+
+                    button.setText("BACKUP");
+                    ((Fragment_1)mSectionsPagerAdapter.getItem(0)).refresh();
+
+                }else {
+                    button.setText("RESTORE");
+                    ((Fragment_2)mSectionsPagerAdapter.getItem(1)).refresh();
+
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
     }
 
-    private void setupViewPager(ViewPager mViewPager) {
-        mSectionsPagerAdapter = new PageAdapter(getSupportFragmentManager());
-        mSectionsPagerAdapter.addFragment(new Fragment_1(),"One");
-        mSectionsPagerAdapter.addFragment(new Fragment_2(),"Two");
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Tab tab1=tabLayout.getTabAt(0);
+        int installedAppsSize=((Fragment_1)mSectionsPagerAdapter.getItem(0)).getInstalledAppsSize();
+        tab1.setText("Installed Apps  "+"( "+installedAppsSize+" )");
+
+        Tab tab2=tabLayout.getTabAt(1);
+        int restoredAppsSize=((Fragment_2)mSectionsPagerAdapter.getItem(1)).getArchivedAppsSize();
+        tab2.setText("Archived Apps  "+"( "+restoredAppsSize+" )");
+
     }
+
+    private void setupViewPager (ViewPager mViewPager){
+            mSectionsPagerAdapter = new PageAdapter(getSupportFragmentManager());
+            mSectionsPagerAdapter.addFragment(new Fragment_1(), "One");
+            mSectionsPagerAdapter.addFragment(new Fragment_2(), "Two");
+            mViewPager.setAdapter(mSectionsPagerAdapter);
+        }
 
 
     @Override

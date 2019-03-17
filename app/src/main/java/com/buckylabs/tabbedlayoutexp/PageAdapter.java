@@ -23,11 +23,15 @@ public class PageAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int i) {
+
         return fragmentList.get(i);
     }
 
     @Override
     public int getCount() {
+
         return fragmentList.size();
     }
+
+
 }

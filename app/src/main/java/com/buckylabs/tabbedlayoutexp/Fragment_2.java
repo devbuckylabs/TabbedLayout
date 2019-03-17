@@ -8,6 +8,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -26,7 +27,9 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static android.os.Looper.getMainLooper;
@@ -49,6 +52,7 @@ public class Fragment_2 extends Fragment {
     SharedPreferences preferences;
     Button restore;
     String rootPath;
+    int archivedAppsSize=0;
 
     public Fragment_2() {
         // Required empty public constructor
@@ -67,7 +71,7 @@ public class Fragment_2 extends Fragment {
         listofApkstoRestore = new ArrayList<>();
         handler = new Handler(getMainLooper());
         restore = v.findViewById(R.id.restore);
-        rootPath=Environment.getExternalStorageDirectory()
+        rootPath = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/App_Backup_Pro/";
         return v;
     }
@@ -100,6 +104,9 @@ public class Fragment_2 extends Fragment {
                 } catch (PackageManager.NameNotFoundException e) {
                     e.printStackTrace();
                 }
+                listofApkstoRestore.clear();
+                uncheckAllBoxes();
+
             }
         });
 
@@ -110,10 +117,10 @@ public class Fragment_2 extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        adapter.notifyDataSetChanged();
+        refresh();
+
         Toast.makeText(getActivity(), "onResume", Toast.LENGTH_SHORT).show();
     }
-
 
 
     public void getArchivedApps() throws PackageManager.NameNotFoundException {
@@ -136,56 +143,89 @@ public class Fragment_2 extends Fragment {
 
         }
 
-        Log.e("apks", "" + apks.toString());
+        archivedAppsSize=apks.size();
     }
+
+
 
     public void InstallApplication() throws PackageManager.NameNotFoundException {
 
+        refresh();
         for (Apk apk : apks) {
 
-            //PackageInfo packinfo=pm.getPackageInfo(apk.getAppName(),PackageManager.GET_META_DATA);
-            File file= new File(rootPath,apk.getAppName()+".apk");
-            Uri path=FileProvider.getUriForFile(getActivity(),getActivity().getPackageName()+".provider",file);
-          //  Uri path = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
-            Intent intent=new Intent(Intent.ACTION_VIEW).setDataAndType(path,
-                    "application/vnd.android.package-archive");
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            if (apk.isChecked()) {
 
-            startActivity(intent);
+                listofApkstoRestore.add(apk.getAppInfo());
+
+            }
+            if (listofApkstoRestore.size() == 0) {
+
+                Toast.makeText(getActivity(), "No Apps Selected", Toast.LENGTH_SHORT).show();
+            } else {
+
+                for (ApplicationInfo info : listofApkstoRestore) {
+
+                    PackageInfo packageInfo = pm.getPackageInfo(info.packageName, PackageManager.GET_META_DATA);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        Log.e("DataPackage", "PackageName :" + packageInfo.packageName + "  VersionName  :" + packageInfo.versionName + "  VersionCode : " + packageInfo.getLongVersionCode() + "");
+                    }
+
+                    Log.e("Noob", info.loadLabel(pm).toString());
+
+                    //PackageInfo packinfo=pm.getPackageInfo(apk.getAppName(),PackageManager.GET_META_DATA);
+                    File file = new File(rootPath, info.loadLabel(pm).toString() + ".apk");
+                    long kb = file.length();
+                    long mb = (kb / (1024 * 1024));
+
+                    Log.e("DataPackage ", mb + "");
+                    Uri path = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
+                    //  Uri path = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
+                    Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(path,
+                            "application/vnd.android.package-archive");
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                    startActivity(intent);
+                }
+            }
+
         }
+        listofApkstoRestore.clear();
+        uncheckAllBoxes();
+
     }
 
-    public void restoreApp() {
 
-        //  String rootPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup/";
-        File file = new File(Environment.getExternalStorageDirectory(),
-                "Calculator.apk");
-        //Uri path = Uri.fromFile(file);
-        Uri path = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
-        Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.setDataAndType(path, "application/vnd.android.package-archive");
-        try {
-            Toast.makeText(getActivity(), "opening", Toast.LENGTH_LONG).show();
-            // startActivityForResult(intent, Activity.RESULT_OK);
-            startActivity(intent);
+    public void uncheckAllBoxes() {
 
-        } catch (ActivityNotFoundException e) {
-            Toast.makeText(getActivity(), "-------------------------", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
+        for (Apk apk : apks) {
+            apk.setChecked(false);
+
         }
+        refresh();
+    }
+
+
+    public void checkAllBoxes() {
+        for (Apk apk : apks) {
+            apk.setChecked(true);
+
+        }
+
+        refresh();
 
 
     }
 
 
+    public void refresh() {
+        adapter.notifyDataSetChanged();
+    }
 
 
+    public int getArchivedAppsSize() {
 
-
-
+        return archivedAppsSize;
+    }
 }

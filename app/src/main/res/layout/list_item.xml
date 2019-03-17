@@ -43,7 +43,7 @@
             android:scaleX="1.2"
             android:clickable="false"
             android:scaleY="1.2"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/MyCheckBox" />
 
     </LinearLayout>
 
