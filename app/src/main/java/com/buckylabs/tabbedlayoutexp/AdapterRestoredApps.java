@@ -46,6 +46,7 @@ public class AdapterRestoredApps  extends RecyclerView.Adapter<AdapterRestoredAp
         viewHolder.appversion.setText("v"+apk.getAppVersionName());
         viewHolder.appsize.setText(apk.getAppSize()+" | "+apk.getDate());
         viewHolder.checkBox.setChecked(apk.isChecked());
+        viewHolder.appStatus.setText(apk.getAppStatus());
     }
 
     @Override
@@ -62,6 +63,7 @@ public class AdapterRestoredApps  extends RecyclerView.Adapter<AdapterRestoredAp
         TextView appName;
         TextView appversion;
         TextView appsize;
+        TextView appStatus;
         ImageView appIcon;
         CheckBox checkBox;
 
@@ -70,8 +72,9 @@ public class AdapterRestoredApps  extends RecyclerView.Adapter<AdapterRestoredAp
             appName = itemView.findViewById(R.id.app_name_Text_Restore);
             appversion = itemView.findViewById(R.id.app_version_name_text_Restore);
             appsize = itemView.findViewById(R.id.appSize_text_Restore);
-            appIcon = itemView.findViewById(R.id.image_restore);
-            checkBox = itemView.findViewById(R.id.checkbox_restore);
+            appIcon = itemView.findViewById(R.id.image_Restore);
+            checkBox = itemView.findViewById(R.id.checkbox_Restore);
+            appStatus= itemView.findViewById(R.id.appStatus_Restore);
             itemView.setOnClickListener(this);
         }
 

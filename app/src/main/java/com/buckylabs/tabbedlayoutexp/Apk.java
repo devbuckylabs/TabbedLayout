@@ -5,20 +5,22 @@ import android.graphics.drawable.Drawable;
 
 public class Apk {
 
-    private String AppName;
-    private Drawable AppIcon;
     private String AppPackage;
+    private String AppStatus;
     private String AppVersionName;
     private String date;
     private String AppSize;
     private ApplicationInfo AppInfo;
     private boolean isChecked;
+    private String AppName;
+    private Drawable AppIcon;
 
 
-    Apk(String appName, Drawable appIcon, String appPackage, String appVersionName, String date, String appSize, ApplicationInfo appInfo, boolean isChecked) {
+    public Apk(String appName, Drawable appIcon, String appPackage, String appStatus, String appVersionName, String date, String appSize, ApplicationInfo appInfo, boolean isChecked) {
         AppName = appName;
         AppIcon = appIcon;
         AppPackage = appPackage;
+        AppStatus = appStatus;
         AppVersionName = appVersionName;
         this.date = date;
         AppSize = appSize;
@@ -29,6 +31,7 @@ public class Apk {
 
     public String getAppName() {
         return AppName;
+
     }
 
     public void setAppName(String appName) {
@@ -49,6 +52,14 @@ public class Apk {
 
     public void setAppPackage(String appPackage) {
         AppPackage = appPackage;
+    }
+
+    public String getAppStatus() {
+        return AppStatus;
+    }
+
+    public void setAppStatus(String appStatus) {
+        AppStatus = appStatus;
     }
 
     public String getAppVersionName() {
@@ -95,15 +106,18 @@ public class Apk {
     @Override
     public String toString() {
         return "Apk{" +
-                "AppName='" + AppName + '\'' +
-                ", AppIcon=" + AppIcon +
-                ", AppPackage='" + AppPackage + '\'' +
+                "AppPackage='" + AppPackage + '\'' +
+                ", AppStatus='" + AppStatus + '\'' +
                 ", AppVersionName='" + AppVersionName + '\'' +
                 ", date='" + date + '\'' +
                 ", AppSize='" + AppSize + '\'' +
                 ", AppInfo=" + AppInfo +
                 ", isChecked=" + isChecked +
+                ", AppName='" + AppName + '\'' +
+                ", AppIcon=" + AppIcon +
                 '}';
     }
+
+
 
 }

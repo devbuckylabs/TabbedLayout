@@ -70,11 +70,10 @@ public class MainActivity extends AppCompatActivity {
 
                 }else {
                     Toast.makeText(MainActivity.this, "Restored   ", Toast.LENGTH_SHORT).show();
-                    try {
+
                         ((Fragment_2)mSectionsPagerAdapter.getItem(1)).InstallApplication();
-                    } catch (PackageManager.NameNotFoundException e) {
-                        e.printStackTrace();
-                    }
+
+
                 }
                     }
 
@@ -115,13 +114,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Tab tab1=tabLayout.getTabAt(0);
-        int installedAppsSize=((Fragment_1)mSectionsPagerAdapter.getItem(0)).getInstalledAppsSize();
-        tab1.setText("Installed Apps  "+"( "+installedAppsSize+" )");
 
-        Tab tab2=tabLayout.getTabAt(1);
-        int restoredAppsSize=((Fragment_2)mSectionsPagerAdapter.getItem(1)).getArchivedAppsSize();
-        tab2.setText("Archived Apps  "+"( "+restoredAppsSize+" )");
     }
 
     private void setupViewPager (ViewPager mViewPager){

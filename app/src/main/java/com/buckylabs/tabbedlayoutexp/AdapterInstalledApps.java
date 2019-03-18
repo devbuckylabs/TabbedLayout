@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -44,6 +46,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
         viewHolder.appversion.setText("v"+apk.getAppVersionName());
         viewHolder.appsize.setText(apk.getAppSize()+" | "+apk.getDate());
         viewHolder.checkBox.setChecked(apk.isChecked());
+        viewHolder.appStatus.setText(apk.getAppStatus());
 
     }
 
@@ -59,6 +62,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView appName;
+        TextView appStatus;
         TextView appversion;
         TextView appsize;
         ImageView appIcon;
@@ -71,6 +75,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
             appsize = itemView.findViewById(R.id.appSize_text);
             appIcon = itemView.findViewById(R.id.image);
             checkBox = itemView.findViewById(R.id.checkbox);
+            appStatus= itemView.findViewById(R.id.appStatus);
             itemView.setOnClickListener(this);
         }
 
@@ -78,12 +83,16 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
         @Override
         public void onClick(View v) {
 
+
             if (apks.get(getAdapterPosition()).isChecked()) {
 
                 checkBox.setChecked(false);
                 apks.get(getAdapterPosition()).setChecked(false);
 
             } else {
+               /* Animation animation1 = new AlphaAnimation(0.3f, 1.0f);
+                animation1.setDuration(4000);
+                v.startAnimation(animation1);*/
                 checkBox.setChecked(true);
                 apks.get(getAdapterPosition()).setChecked(true);
 

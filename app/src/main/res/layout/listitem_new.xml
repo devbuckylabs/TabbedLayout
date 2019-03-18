@@ -6,10 +6,10 @@
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="42dp"
-        android:layout_height="42dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_gravity="center_vertical"
-        android:layout_margin="10dp"
+        android:layout_margin="5dp"
         android:layout_weight="1"
         android:src="@drawable/ic_launcher_background" />
 
@@ -27,11 +27,24 @@
 
             <TextView
                 android:id="@+id/app_name_Text"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Hello"
-                android:textSize="18sp"
+                android:layout_weight="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:textColor="@color/black"
+                android:layout_marginBottom="2dp"
+                android:textSize="17sp"
                 android:textStyle="bold" />
+            <TextView
+                android:id="@+id/appStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:textSize="13sp"
+                android:textColor="@color/colorAccent"
+                />
+
 
         </LinearLayout>
 
@@ -43,25 +56,27 @@
 
             <TextView
                 android:id="@+id/app_version_name_text"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="done" />
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+                android:textColor="@color/black"
+                android:textSize="@dimen/ApkDescText"
+                android:layout_weight="1"/>
 
             <TextView
                 android:id="@+id/appSize_text"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="gkjvx" />
+                android:paddingEnd="5dp"
+                android:layout_weight="0"
+                android:textColor="@color/black"
+                android:textSize="@dimen/ApkDescText"
+                android:gravity="end"
+                 />
+
 
         </LinearLayout>
+
+
 
     </LinearLayout>
 
@@ -72,7 +87,8 @@
         android:layout_gravity="center_vertical"
         android:scaleX="1.2"
         android:clickable="false"
-
+         android:padding="3dp"
+        android:layout_marginStart="3dp"
         android:layout_weight="1"
         android:scaleY="1.2"
         android:theme="@style/MyCheckBox"/>

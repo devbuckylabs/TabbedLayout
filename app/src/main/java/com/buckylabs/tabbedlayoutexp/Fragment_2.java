@@ -58,7 +58,7 @@ public class Fragment_2 extends Fragment {
     SharedPreferences preferences;
     Button restore;
     String rootPath;
-    int archivedAppsSize = 0;
+
 
     public Fragment_2() {
         // Required empty public constructor
@@ -96,23 +96,14 @@ public class Fragment_2 extends Fragment {
 
         adapter = new AdapterRestoredApps(getActivity(), apks);
         recyclerViewRestore.setAdapter(adapter);
-        try {
-            getArchivedApps();
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e("Exception", "***************************");
-            e.printStackTrace();
-        }
+       getArchivedApps();
 
         restore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
+
                     InstallApplication();
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
-                }
-                listofApkstoRestore.clear();
-                uncheckAllBoxes();
+
 
             }
         });
@@ -137,110 +128,65 @@ public class Fragment_2 extends Fragment {
 
     }
 
-    public void getArchivedApps() throws PackageManager.NameNotFoundException {
+    public void getArchivedApps() {
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup_Pro";
         File directory = new File(path);
         File[] files = directory.listFiles();
         for (File file : files) {
             Log.e("Archive FilesName", "" + file.getName());
-            //Package p=Package.getPackage(file.getName());
-            PackageInfo packinfo = pm.getPackageArchiveInfo(path + "/" + file.getName(), PackageManager.GET_META_DATA);
-            Log.e("Archive FilespackInfo", "" + packinfo.applicationInfo.loadLabel(pm));
-            ApplicationInfo info = pm.getApplicationInfo(packinfo.packageName, PackageManager.GET_META_DATA);
+            PackageInfo packinfo = pm.getPackageArchiveInfo(path + "/" + file.getName(), 0);
+            ApplicationInfo info;
+            try {
+                info = pm.getApplicationInfo(packinfo.packageName, PackageManager.GET_META_DATA);
 
-            //   Toast.makeText(getActivity(), ""+p, Toast.LENGTH_SHORT).show();
-            //Log.d("Files",""+p+"  "+p.getName()+"  "+p.getSpecificationVersion());
-            Log.e("Archive FilesInfo", "" + info.loadLabel(pm));
+            } catch (PackageManager.NameNotFoundException e) {
 
-            listofArchivedApks.add(info);
-            /*Apk apk = new Apk(info.loadLabel(pm).toString(), info.loadIcon(pm), info, false);
-            apks.add(apk);*/
-        }
+                info = null;
+                packinfo.applicationInfo.sourceDir=file.getAbsolutePath();
+                packinfo.applicationInfo.publicSourceDir=file.getAbsolutePath();
 
-        readdata(listofArchivedApks);
+            }
 
-        archivedAppsSize = listofArchivedApks.size();
-    }
+                packinfo.applicationInfo.sourceDir=file.getAbsolutePath();
+                packinfo.applicationInfo.publicSourceDir=file.getAbsolutePath();
 
-    public void readdata(List<ApplicationInfo> apps) throws PackageManager.NameNotFoundException {
-        Collections.sort(apps, new ApplicationInfo.DisplayNameComparator(pm));
-        for (ApplicationInfo info : apps) {
-            PackageInfo packageInfo = pm.getPackageInfo(info.packageName, PackageManager.GET_META_DATA);
 
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-            String dateString = formatter.format(new Date(packageInfo.firstInstallTime));
-            Log.e("DATEFORMAT", dateString);
-            Log.e("Rare", "");
-
-            String AppName = info.loadLabel(pm).toString();
-            Drawable AppIcon = info.loadIcon(pm);
-            String AppPackage = packageInfo.packageName;
-            String AppVersionName = packageInfo.versionName;
-            String date = getAppDate(packageInfo.lastUpdateTime);
+            String AppName = (String) packinfo.applicationInfo.loadLabel(pm);
+            Drawable AppIcon = packinfo.applicationInfo.loadIcon(pm);
+            String AppPackage = packinfo.packageName;
+            String AppVersionName = packinfo.versionName;
+            long time = new File(packinfo.applicationInfo.sourceDir).lastModified();
+            String date=getAppDate(time);
+            Log.e("Dateeeee",packinfo.lastUpdateTime+"");
             ApplicationInfo AppInfo = info;
-            File file=new File(info.sourceDir);
-            String Appsize= getAppSize(file.length());
+            String AppStatus = "";
+            File file1 = new File(packinfo.applicationInfo.sourceDir);
+            String Appsize = getAppSize(file1.length());
             boolean isChecked = false;
-            Apk apk = new Apk(AppName,AppIcon,AppPackage,AppVersionName,date,Appsize,AppInfo,isChecked);
-            Log.e("CONAN_FRAG2",apk.toString());
+            Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
+
             apks.add(apk);
+
         }
+
+
 
 
     }
 
 
-    public void InstallApplication() throws PackageManager.NameNotFoundException {
+
+
+
+
+    public void InstallApplication() {
 
         refresh();
         for (Apk apk : apks) {
 
             if (apk.isChecked()) {
-
-                listofApkstoRestore.add(apk.getAppInfo());
-                Log.e("checkedFor", apk.getAppName());
-
-            }
-        }
-        if (listofApkstoRestore.size() == 0) {
-
-            Toast.makeText(getActivity(), "No Apps Selected", Toast.LENGTH_SHORT).show();
-        } else {
-
-            Log.e("checkedFor", listofApkstoRestore.toString());
-            int i = 0;
-            for (ApplicationInfo info : listofApkstoRestore) {
-
-                PackageInfo packageInfo = pm.getPackageInfo(info.packageName, PackageManager.GET_META_DATA);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    Log.e("DataPackage", "PackageName :" + packageInfo.packageName + "  VersionName  :" + packageInfo.versionName + "  VersionCode : " + packageInfo.getLongVersionCode() + "");
-                }
-
-                Log.e("Noob " + i++, info.loadLabel(pm).toString());
-
-                //PackageInfo packinfo=pm.getPackageInfo(apk.getAppName(),PackageManager.GET_META_DATA);
-                File file = new File(rootPath, info.loadLabel(pm).toString() + ".apk");
-
-                DecimalFormat decimalFormat=new DecimalFormat("0.00");
-                decimalFormat.format(file.length()/1024.0F);
-               String c= decimalFormat.format(file.length()/1048576.0F);
-                //decimalFormat.format(file.length()/1024.0F);
-
-               double bytes = file.length();
-                double kb = (bytes / 1024 );
-                double mb=(kb/1024);
-
-              //double a=(double) Math.round(mb*100)/100;
-                String MB=String.format("%.1f", mb);
-
-
-                Log.e("DataPackage ", mb + "  "+" "+MB);
-                Log.e("DataPackageKB ",  decimalFormat.format(file.length()/1024.0F) + " "+" "+"KB");
-                Log.e("DataPackageMB ",  decimalFormat.format(file.length()/1048576.0F) + " "+" "+"MB");
-
-
+                File file = new File(rootPath, apk.getAppName() + ".apk");
                 Uri path = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
-                //  Uri path = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
                 Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(path,
                         "application/vnd.android.package-archive");
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -251,35 +197,33 @@ public class Fragment_2 extends Fragment {
             }
         }
 
-        listofApkstoRestore.clear();
         uncheckAllBoxes();
 
     }
 
-    public String getAppDate(long milliseconds){
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+    public String getAppDate(long milliseconds) {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
         String dateString = formatter.format(new Date(milliseconds));
-        if(dateString==null){
+        if (dateString == null) {
             return "";
         }
 
         return dateString;
     }
 
-    public String getAppSize(double sizeInBytes){
-        Log.e("Travis","ingetSize");
-        if(sizeInBytes<1048576){
-            Log.e("Travis","ingetSize1");
-            double sizeInKB=sizeInBytes/1024;
-            String size=String.format("%.1f", sizeInKB);
+    public String getAppSize(double sizeInBytes) {
+        Log.e("Travis", "ingetSize");
+        if (sizeInBytes < 1048576) {
+            Log.e("Travis", "ingetSize1");
+            double sizeInKB = sizeInBytes / 1024;
+            String size = String.format("%.1f", sizeInKB);
 
 
-            return size+"KB";
-        }
-        else if(sizeInBytes<1073741824) {
-            Log.e("Travis","ingetSize2");
+            return size + "KB";
+        } else if (sizeInBytes < 1073741824) {
+            Log.e("Travis", "ingetSize2");
             double sizeInMb = sizeInBytes / 1048576;
-            String size=String.format("%.1f", sizeInMb);
+            String size = String.format("%.1f", sizeInMb);
             return size + "MB";
 
         }
@@ -314,8 +258,4 @@ public class Fragment_2 extends Fragment {
     }
 
 
-    public int getArchivedAppsSize() {
-
-        return archivedAppsSize;
-    }
 }

@@ -67,7 +67,7 @@
         android:background="@color/colorPrimary"
         android:layout_gravity="bottom"
         android:text="Backup"
-        android:textColor="@color/colorAccent"
+        android:textColor="@android:color/white"
         />
 
 </android.support.design.widget.CoordinatorLayout>
