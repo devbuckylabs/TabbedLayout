@@ -34,6 +34,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -52,12 +53,12 @@ public class Fragment_2 extends Fragment {
     private PackageManager pm;
     private boolean isChecked;
     private AdapterRestoredApps adapter;
-    private List<ApplicationInfo> listofArchivedApks;
-    private List<ApplicationInfo> listofApkstoRestore;
+    List<Apk> archivedApks;
     private Handler handler;
     SharedPreferences preferences;
     Button restore;
     String rootPath;
+    List<Apk> installedapks;
 
 
     public Fragment_2() {
@@ -74,8 +75,7 @@ public class Fragment_2 extends Fragment {
         isChecked = false;
         //isAllChecked = true;
         apks = new ArrayList<>();
-        listofApkstoRestore = new ArrayList<>();
-        listofArchivedApks = new ArrayList<>();
+
         handler = new Handler(getMainLooper());
         restore = v.findViewById(R.id.restore);
         rootPath = Environment.getExternalStorageDirectory()
@@ -93,10 +93,11 @@ public class Fragment_2 extends Fragment {
         DividerItemDecoration itemDecor = new DividerItemDecoration(getActivity(), HORIZONTAL);
         itemDecor.setOrientation(VERTICAL);
         recyclerViewRestore.addItemDecoration(itemDecor);
-
+        archivedApks =new ArrayList<>();
+        installedapks=new ArrayList<>();
         adapter = new AdapterRestoredApps(getActivity(), apks);
         recyclerViewRestore.setAdapter(adapter);
-       getArchivedApps();
+        populateRecyclerview();
 
         restore.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,7 +129,7 @@ public class Fragment_2 extends Fragment {
 
     }
 
-    public void getArchivedApps() {
+    public List<Apk> getArchivedApps() {
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup_Pro";
         File directory = new File(path);
         File[] files = directory.listFiles();
@@ -164,19 +165,118 @@ public class Fragment_2 extends Fragment {
             String Appsize = getAppSize(file1.length());
             boolean isChecked = false;
             Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
+            archivedApks.add(apk);
 
-            apks.add(apk);
 
         }
 
-
-
+      return archivedApks;
 
     }
 
 
+public void populateRecyclerview() {
+    List<Apk> installedApks = new ArrayList<>();
+    try {
+        installedApks = getInstalledApks(false);
+    } catch (PackageManager.NameNotFoundException e) {
+        e.printStackTrace();
+    }
+    List<Apk> archivedApks = getArchivedApps();
 
 
+    for (Apk apk1 : archivedApks) {
+
+        for (Apk apk2 : installedApks) {
+
+            if (apk1.getAppName().equals(apk2.getAppName())) {
+
+                apk1.setAppStatus("Installed");
+
+            }
+        }
+
+        apks.add(apk1);
+
+    }
+
+    Collections.sort(apks, new Comparator<Apk>() {
+        @Override
+        public int compare(final Apk object1, final Apk object2) {
+            return object1.getAppName().compareTo(object2.getAppName());
+        }
+    });
+
+    refresh();
+}
+
+
+
+
+
+    public List<Apk> getInstalledApks(boolean isSys) throws PackageManager.NameNotFoundException {
+
+        Intent intent = new Intent(Intent.ACTION_MAIN, null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ApplicationInfo> apps = pm.getInstalledApplications(0);
+        Collections.sort(apps, new ApplicationInfo.DisplayNameComparator(pm));
+        Log.e("App Size ", "" + apps.size());
+
+        for (ApplicationInfo app : apps) {
+
+            PackageInfo packageInfo = pm.getPackageInfo(app.packageName, PackageManager.GET_META_DATA);
+            if (isSys) {
+
+
+                String AppName = app.loadLabel(pm).toString();
+                Drawable AppIcon = app.loadIcon(pm);
+                String AppPackage = packageInfo.packageName;
+                String AppStatus = "";
+                String AppVersionName = packageInfo.versionName;
+                String date = getAppDate(packageInfo.lastUpdateTime);
+                ApplicationInfo AppInfo = app;
+                File file = new File(app.sourceDir);
+                String Appsize = (String) getAppSize(file.length());
+                boolean isChecked = isSys;
+                Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
+                apks.add(apk);
+
+            } else {
+
+                if ((app.flags & (ApplicationInfo.FLAG_UPDATED_SYSTEM_APP | ApplicationInfo.FLAG_SYSTEM)) > 0) {
+
+                } else {
+
+
+                    String AppName = app.loadLabel(pm).toString();
+                    Drawable AppIcon = app.loadIcon(pm);
+                    String AppStatus = "";
+                    String AppPackage = packageInfo.packageName;
+                    String AppVersionName = packageInfo.versionName;
+                    String date = getAppDate(packageInfo.lastUpdateTime);
+                    ApplicationInfo AppInfo = app;
+                    File file = new File(app.sourceDir);
+                    String Appsize = (String) getAppSize(file.length());
+
+                    boolean isChecked = isSys;
+                    Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
+
+
+
+                    installedapks.add(apk);
+
+                }
+
+
+
+            }
+        }
+
+        if(installedapks.size()<=0)
+        return new ArrayList<>();
+
+return installedapks;
+    }
 
 
     public void InstallApplication() {

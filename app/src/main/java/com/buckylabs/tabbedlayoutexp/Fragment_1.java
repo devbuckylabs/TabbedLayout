@@ -64,6 +64,8 @@ public class Fragment_1 extends Fragment {
 
     private RecyclerView recyclerView;
     private List<Apk> apks;
+    private List<Apk> installedApks;
+    private List<Apk> archivedApks;
     private PackageManager pm;
     private boolean isChecked;
     private boolean isSys;
@@ -73,7 +75,6 @@ public class Fragment_1 extends Fragment {
     private Handler handler;
     SharedPreferences preferences;
     String rootPath;
-
 
 
     public Fragment_1() {
@@ -95,6 +96,8 @@ public class Fragment_1 extends Fragment {
         isAllChecked = true;
         apks = new ArrayList<>();
         listofApkstoBackup = new ArrayList<>();
+        installedApks = new ArrayList<>();
+        archivedApks = new ArrayList<>();
         handler = new Handler(getMainLooper());
         rootPath = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/App_Backup_Pro/";
@@ -118,11 +121,7 @@ public class Fragment_1 extends Fragment {
         recyclerView.setAdapter(adapter);
         getStoragePermission();
         createDirectory();
-        try {
-            getApks(isSys);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
+        populateRecyclerview();
 
 
     }
@@ -151,7 +150,7 @@ public class Fragment_1 extends Fragment {
         refresh();
     }
 
-    public void getApks(boolean isSys) throws PackageManager.NameNotFoundException {
+    public List<Apk> getApks(boolean isSys) throws PackageManager.NameNotFoundException {
 
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -198,16 +197,97 @@ public class Fragment_1 extends Fragment {
                     boolean isChecked = isSys;
                     Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
 
-
-                    apks.add(apk);
+                    installedApks.add(apk);
 
                 }
-
 
 
             }
         }
 
+        if (installedApks.size() <= 0) {
+            return new ArrayList<>();
+        }
+
+        return installedApks;
+    }
+
+
+    public void populateRecyclerview(){
+        List<Apk> installedApks=new ArrayList<>();
+        try {
+            installedApks=getApks(isSys);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        List<Apk> archivedApks=getArchivedApps();
+
+
+        for(Apk apk1:installedApks){
+
+            for (Apk apk2:archivedApks){
+
+                if(apk1.getAppName().equals(apk2.getAppName())){
+
+                    apk1.setAppStatus("Archived");
+
+                }
+            }
+            apks.add(apk1);
+
+        }
+
+
+
+    }
+
+
+
+
+    public List<Apk> getArchivedApps() {
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup_Pro";
+        File directory = new File(path);
+        File[] files = directory.listFiles();
+        for (File file : files) {
+            Log.e("Archive FilesName", "" + file.getName());
+            PackageInfo packinfo = pm.getPackageArchiveInfo(path + "/" + file.getName(), 0);
+            ApplicationInfo info;
+            try {
+                info = pm.getApplicationInfo(packinfo.packageName, PackageManager.GET_META_DATA);
+
+            } catch (PackageManager.NameNotFoundException e) {
+
+                info = null;
+                packinfo.applicationInfo.sourceDir=file.getAbsolutePath();
+                packinfo.applicationInfo.publicSourceDir=file.getAbsolutePath();
+
+            }
+
+            packinfo.applicationInfo.sourceDir=file.getAbsolutePath();
+            packinfo.applicationInfo.publicSourceDir=file.getAbsolutePath();
+
+
+            String AppName = (String) packinfo.applicationInfo.loadLabel(pm);
+            Drawable AppIcon = packinfo.applicationInfo.loadIcon(pm);
+            String AppPackage = packinfo.packageName;
+            String AppVersionName = packinfo.versionName;
+            long time = new File(packinfo.applicationInfo.sourceDir).lastModified();
+            String date=getAppDate(time);
+            Log.e("Dateeeee",packinfo.lastUpdateTime+"");
+            ApplicationInfo AppInfo = info;
+            String AppStatus = "";
+            File file1 = new File(packinfo.applicationInfo.sourceDir);
+            String Appsize = getAppSize(file1.length());
+            boolean isChecked = false;
+            Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
+            archivedApks.add(apk);
+
+
+            // apks.add(apk);
+
+        }
+
+        return archivedApks;
 
     }
 
@@ -276,7 +356,6 @@ public class Fragment_1 extends Fragment {
         refresh();
 
     }
-
 
 
     public void writeData(List<ApplicationInfo> listapks) {
