@@ -9,6 +9,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -44,8 +45,10 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.spi.FileTypeDetector;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import es.dmoral.toasty.Toasty;
@@ -57,7 +60,7 @@ import static android.widget.GridLayout.VERTICAL;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Fragment_1 extends Fragment {
+public class Fragment_1 extends Fragment  {
 
     private RecyclerView recyclerView;
     private List<Apk> apks;
@@ -71,7 +74,7 @@ public class Fragment_1 extends Fragment {
     SharedPreferences preferences;
 
     String rootPath;
-    int installedAppsSize=0;
+    int installedAppsSize = 0;
 
 
     public Fragment_1() {
@@ -116,10 +119,11 @@ public class Fragment_1 extends Fragment {
         recyclerView.setAdapter(adapter);
         getStoragePermission();
         createDirectory();
-        getApks(isSys);
-
-
-
+        try {
+            getApks(isSys);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
 
     }
@@ -148,7 +152,7 @@ public class Fragment_1 extends Fragment {
         refresh();
     }
 
-    public void getApks(boolean isSys) {
+    public void getApks(boolean isSys) throws PackageManager.NameNotFoundException {
 
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -160,20 +164,60 @@ public class Fragment_1 extends Fragment {
             Log.e("App ", "" + i++);
 
 
+            File f =new File(app.sourceDir);
+            double bytes = f.length();
+            double kb = (bytes / 1024 );
+            double mb=(kb/1024);
+            String MB=String.format("%.1f", mb);
+
+            Log.e("SOURCESIR","f "+f.length()+"  sourceDir"+ app.sourceDir + "  size  "+ MB);
+            PackageInfo packageInfo = pm.getPackageInfo(app.packageName, PackageManager.GET_META_DATA);
             if (isSys) {
-                Apk apk = new Apk((String) app.loadLabel(pm), app.loadIcon(pm), app, isChecked);
-                apks.add(apk);
+
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                String dateString = formatter.format(new Date(packageInfo.firstInstallTime));
+
+
+                String AppName = app.loadLabel(pm).toString();
+                Drawable AppIcon = app.loadIcon(pm);
+                String AppPackage = packageInfo.packageName;
+                String AppVersionName = packageInfo.versionName;
+                String date = getAppDate(packageInfo.lastUpdateTime);
+                ApplicationInfo AppInfo = app;
+                File file=new File(app.sourceDir);
+                String Appsize= (String) getAppSize(file.length());
+                boolean isChecked = isSys;
+                Apk apk = new Apk(AppName,AppIcon,AppPackage,AppVersionName,date,Appsize,AppInfo,isChecked);
+                        apks.add(apk);
 
             } else {
 
                 if ((app.flags & (ApplicationInfo.FLAG_UPDATED_SYSTEM_APP | ApplicationInfo.FLAG_SYSTEM)) > 0) {
 
                 } else {
-                    Apk apk = new Apk((String) app.loadLabel(pm), app.loadIcon(pm), app, isChecked);
+                   /* SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+                    String dateString = formatter.format(new Date(packageInfo.firstInstallTime));*/
+                   // Log.e("DATEFORMAT", dateString);
+                    Log.e("Rare", "");
+
+                    String AppName = app.loadLabel(pm).toString();
+                    Drawable AppIcon = app.loadIcon(pm);
+                    String AppPackage = packageInfo.packageName;
+                    String AppVersionName = packageInfo.versionName;
+                    String date = getAppDate(packageInfo.lastUpdateTime);
+                    ApplicationInfo AppInfo = app;
+                    File file=new File(app.sourceDir);
+                    String Appsize= (String) getAppSize(file.length());
+                    Log.e("Travis",file.length()+"");
+                    boolean isChecked = isSys;
+                    Apk apk = new Apk(AppName,AppIcon,AppPackage,AppVersionName,date,Appsize,AppInfo,isChecked);
+                    Log.e("CONAN_FRAG1",apk.toString());
+                   // Log.e("APKDATA", apk.toString());
                     apks.add(apk);
+
                 }
 
-                installedAppsSize=apks.size();
+                installedAppsSize = apks.size();
                 Log.e("Size ", "" + apks.size());
             }
         }
@@ -182,8 +226,40 @@ public class Fragment_1 extends Fragment {
     }
 
 
+    public String getAppDate(long milliseconds){
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        String dateString = formatter.format(new Date(milliseconds));
+        if(dateString==null){
+            return "";
+        }
+
+        return dateString;
+    }
+
+
+    public String getAppSize(double sizeInBytes){
+        Log.e("Travis","ingetSize");
+     if(sizeInBytes<1048576){
+         Log.e("Travis","ingetSize1");
+         double sizeInKB=sizeInBytes/1024;
+         String size=String.format("%.1f", sizeInKB);
+
+
+         return size+" KB";
+     }
+     else if(sizeInBytes<1073741824) {
+         Log.e("Travis","ingetSize2");
+         double sizeInMb = sizeInBytes / 1048576;
+         String size=String.format("%.1f", sizeInMb);
+         return size + " MB";
+
+     }
+     return "";
+    }
+
+
     public void backupApks() {
-       createDirectory();
+        createDirectory();
         //adapter.notifyDataSetChanged();
         Log.e("Apksssssssss", apks.toString());
         for (Apk apk : apks) {
@@ -200,7 +276,7 @@ public class Fragment_1 extends Fragment {
             Log.e("Apps", (listofApkstoBackup.size()) + "");
 
             writeData(listofApkstoBackup);
-            Toasty.success(getContext(),"Archived", Toast.LENGTH_SHORT, true).show();
+            Toasty.success(getContext(), "Archived", Toast.LENGTH_SHORT, true).show();
             listofApkstoBackup.clear();
             uncheckAllBoxes();
         }
@@ -208,7 +284,7 @@ public class Fragment_1 extends Fragment {
 
     }
 
-    public int getInstalledAppsSize(){
+    public int getInstalledAppsSize() {
 
         return installedAppsSize;
     }
@@ -244,9 +320,7 @@ public class Fragment_1 extends Fragment {
         }
 
 
-
     }
-
 
 
     public void uncheckAllBoxes() {
@@ -282,7 +356,7 @@ public class Fragment_1 extends Fragment {
     }
 
 
-    }
+}
 
 
 

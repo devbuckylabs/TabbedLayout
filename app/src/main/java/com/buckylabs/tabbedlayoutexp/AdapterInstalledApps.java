@@ -29,7 +29,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
     @Override
     public AdapterInstalledApps.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
-        View v= LayoutInflater.from(context).inflate(R.layout.list_item,viewGroup,false);
+        View v= LayoutInflater.from(context).inflate(R.layout.listitem_new,viewGroup,false);
 
         return new ViewHolder(v);
     }
@@ -41,6 +41,8 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
        // Log.e("APPPPP",""+apk.getAppName());
         viewHolder.appName.setText(apk.getAppName());
         viewHolder.appIcon.setImageDrawable(apk.getAppIcon());
+        viewHolder.appversion.setText("v"+apk.getAppVersionName());
+        viewHolder.appsize.setText(apk.getAppSize()+" | "+apk.getDate());
         viewHolder.checkBox.setChecked(apk.isChecked());
 
     }
@@ -57,14 +59,18 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView appName;
+        TextView appversion;
+        TextView appsize;
         ImageView appIcon;
         CheckBox checkBox;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            appName = itemView.findViewById(R.id.textView);
-            appIcon = itemView.findViewById(R.id.imageView);
-            checkBox = itemView.findViewById(R.id.checkBox);
+            appName = itemView.findViewById(R.id.app_name_Text);
+            appversion = itemView.findViewById(R.id.app_version_name_text);
+            appsize = itemView.findViewById(R.id.appSize_text);
+            appIcon = itemView.findViewById(R.id.image);
+            checkBox = itemView.findViewById(R.id.checkbox);
             itemView.setOnClickListener(this);
         }
 

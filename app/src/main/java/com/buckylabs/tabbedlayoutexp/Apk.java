@@ -7,16 +7,25 @@ public class Apk {
 
     private String AppName;
     private Drawable AppIcon;
+    private String AppPackage;
+    private String AppVersionName;
+    private String date;
+    private String AppSize;
     private ApplicationInfo AppInfo;
     private boolean isChecked;
 
 
-    public Apk(String appName, Drawable appIcon, ApplicationInfo appInfo, boolean isChecked) {
+    Apk(String appName, Drawable appIcon, String appPackage, String appVersionName, String date, String appSize, ApplicationInfo appInfo, boolean isChecked) {
         AppName = appName;
         AppIcon = appIcon;
+        AppPackage = appPackage;
+        AppVersionName = appVersionName;
+        this.date = date;
+        AppSize = appSize;
         AppInfo = appInfo;
         this.isChecked = isChecked;
     }
+
 
     public String getAppName() {
         return AppName;
@@ -32,6 +41,38 @@ public class Apk {
 
     public void setAppIcon(Drawable appIcon) {
         AppIcon = appIcon;
+    }
+
+    public String getAppPackage() {
+        return AppPackage;
+    }
+
+    public void setAppPackage(String appPackage) {
+        AppPackage = appPackage;
+    }
+
+    public String getAppVersionName() {
+        return AppVersionName;
+    }
+
+    public void setAppVersionName(String appVersionName) {
+        AppVersionName = appVersionName;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getAppSize() {
+        return AppSize;
+    }
+
+    public void setAppSize(String appSize) {
+        AppSize = appSize;
     }
 
     public ApplicationInfo getAppInfo() {
@@ -50,13 +91,19 @@ public class Apk {
         isChecked = checked;
     }
 
+
     @Override
     public String toString() {
         return "Apk{" +
                 "AppName='" + AppName + '\'' +
                 ", AppIcon=" + AppIcon +
+                ", AppPackage='" + AppPackage + '\'' +
+                ", AppVersionName='" + AppVersionName + '\'' +
+                ", date='" + date + '\'' +
+                ", AppSize='" + AppSize + '\'' +
                 ", AppInfo=" + AppInfo +
                 ", isChecked=" + isChecked +
                 '}';
     }
+
 }

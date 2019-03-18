@@ -30,7 +30,7 @@ public class AdapterRestoredApps  extends RecyclerView.Adapter<AdapterRestoredAp
     @Override
     public AdapterRestoredApps.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
-        View v= LayoutInflater.from(context).inflate(R.layout.list_item_restore,viewGroup,false);
+        View v= LayoutInflater.from(context).inflate(R.layout.list_item_restore_new,viewGroup,false);
 
         return new AdapterRestoredApps.ViewHolder(v);
     }
@@ -43,8 +43,9 @@ public class AdapterRestoredApps  extends RecyclerView.Adapter<AdapterRestoredAp
        // Log.e("Archive Bind",apk.toString());
         viewHolder.appName.setText(apk.getAppName());
         viewHolder.appIcon.setImageDrawable(apk.getAppIcon());
+        viewHolder.appversion.setText("v"+apk.getAppVersionName());
+        viewHolder.appsize.setText(apk.getAppSize()+" | "+apk.getDate());
         viewHolder.checkBox.setChecked(apk.isChecked());
-
     }
 
     @Override
@@ -59,14 +60,18 @@ public class AdapterRestoredApps  extends RecyclerView.Adapter<AdapterRestoredAp
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView appName;
+        TextView appversion;
+        TextView appsize;
         ImageView appIcon;
         CheckBox checkBox;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            appName = itemView.findViewById(R.id.textViewRestore);
-            appIcon = itemView.findViewById(R.id.imageViewRestore);
-            checkBox = itemView.findViewById(R.id.checkBoxRestore);
+            appName = itemView.findViewById(R.id.app_name_Text_Restore);
+            appversion = itemView.findViewById(R.id.app_version_name_text_Restore);
+            appsize = itemView.findViewById(R.id.appSize_text_Restore);
+            appIcon = itemView.findViewById(R.id.image_restore);
+            checkBox = itemView.findViewById(R.id.checkbox_restore);
             itemView.setOnClickListener(this);
         }
 
