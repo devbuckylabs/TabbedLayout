@@ -2,7 +2,9 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:background="?attr/background_color">
+
 
     <ImageView
         android:id="@+id/image_Restore"
@@ -32,17 +34,18 @@
                 android:layout_weight="1"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
-                android:textColor="@color/black"
+                android:textColor="?attr/text_color"
                 android:layout_marginBottom="2dp"
                 android:textSize="17sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                />
             <TextView
                 android:id="@+id/appStatus_Restore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="end"
                 android:textSize="13sp"
-                android:textColor="@color/colorAccent"
+                android:textColor="?attr/text_status_color"
                 />
 
 
@@ -58,7 +61,7 @@
                 android:id="@+id/app_version_name_text_Restore"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
+                android:textColor="?attr/text_color"
                 android:textSize="@dimen/ApkDescText"
                 android:layout_weight="1"/>
 
@@ -68,7 +71,7 @@
                 android:layout_height="wrap_content"
                 android:paddingEnd="5dp"
                 android:layout_weight="0"
-                android:textColor="@color/black"
+                android:textColor="?attr/text_color"
                 android:textSize="@dimen/ApkDescText"
                 android:gravity="end"
                 />
@@ -91,7 +94,8 @@
         android:layout_marginStart="3dp"
         android:layout_weight="1"
         android:scaleY="1.2"
-        android:theme="@style/MyCheckBox"/>
+        android:backgroundTint="?attr/checkbox_tintcolor"
+        />
 
 
 
