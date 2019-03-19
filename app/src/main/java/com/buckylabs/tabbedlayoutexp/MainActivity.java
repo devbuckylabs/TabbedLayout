@@ -1,6 +1,8 @@
 package com.buckylabs.tabbedlayoutexp;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.preference.PreferenceActivity;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.TabLayout.Tab;
 import android.support.design.widget.FloatingActionButton;
@@ -142,6 +144,11 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsActivity.GeneralPreferenceFragment.class.getName());
+            intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
+
+            startActivity(intent);
             return true;
         }
 
