@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="?attr/background_color"
     tools:context=".MainActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -64,7 +65,7 @@
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="?attr/button_color"
         android:layout_gravity="bottom"
         android:text="Backup"
         android:textColor="@android:color/white"
