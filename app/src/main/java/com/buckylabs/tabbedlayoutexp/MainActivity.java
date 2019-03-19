@@ -87,8 +87,6 @@ public class MainActivity extends AppCompatActivity {
 
                     button.setText("BACKUP");
 
-
-
                 }else {
 
                     button.setText("RESTORE");
@@ -116,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
     }
+
 
     private void setupViewPager (ViewPager mViewPager){
             mSectionsPagerAdapter = new PageAdapter(getSupportFragmentManager());

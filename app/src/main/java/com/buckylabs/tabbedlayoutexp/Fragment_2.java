@@ -97,7 +97,7 @@ public class Fragment_2 extends Fragment {
         installedapks=new ArrayList<>();
         adapter = new AdapterRestoredApps(getActivity(), apks);
         recyclerViewRestore.setAdapter(adapter);
-        populateRecyclerview();
+      //  populateRecyclerview();
 
         restore.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,8 +124,8 @@ public class Fragment_2 extends Fragment {
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
+       super.onActivityCreated(savedInstanceState);
+        populateRecyclerview();
 
     }
 
@@ -173,6 +173,8 @@ public class Fragment_2 extends Fragment {
       return archivedApks;
 
     }
+
+
 
 
 public void populateRecyclerview() {
@@ -286,14 +288,26 @@ return installedapks;
 
             if (apk.isChecked()) {
                 File file = new File(rootPath, apk.getAppName() + ".apk");
-                Uri path = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
-                Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(path,
-                        "application/vnd.android.package-archive");
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(intent);
 
+                if(Build.VERSION.SDK_INT>=24) {
+
+                    Uri path = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
+                    Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(path,
+                            "application/vnd.android.package-archive");
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent);
+                }else{
+
+                    Uri uri=Uri.fromFile(file);
+                    Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uri,
+                            "application/vnd.android.package-archive");
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+
+
+                }
             }
         }
 

@@ -19,7 +19,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
@@ -75,7 +77,7 @@ public class Fragment_1 extends Fragment {
     private Handler handler;
     SharedPreferences preferences;
     String rootPath;
-
+    public static final int  MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 346;
 
     public Fragment_1() {
         // Required empty public constructor
@@ -119,9 +121,8 @@ public class Fragment_1 extends Fragment {
 
         adapter = new AdapterInstalledApps(getActivity(), apks);
         recyclerView.setAdapter(adapter);
-        getStoragePermission();
+
         createDirectory();
-        populateRecyclerview();
 
 
     }
@@ -131,18 +132,17 @@ public class Fragment_1 extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                populateRecyclerview();
+            }
+        }).start();
 
     }
 
-    public void getStoragePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-            requestPermissions(new String[]{Manifest.permission.WRITE_SETTINGS}, 1);
-            requestPermissions(new String[]{Manifest.permission.MANAGE_DOCUMENTS}, 1);
 
-        }
-    }
+
 
     @Override
     public void onResume() {
@@ -211,6 +211,8 @@ public class Fragment_1 extends Fragment {
 
         return installedApks;
     }
+
+
 
 
     public void populateRecyclerview(){

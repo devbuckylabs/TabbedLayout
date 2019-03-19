@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="end"
                 android:textSize="13sp"
-                android:textColor="@color/text_color"
+                android:textColor="@color/colorAccent"
                 />
 
 
