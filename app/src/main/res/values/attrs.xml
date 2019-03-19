@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="a">
+
+        <attr name="background_color" format="color"></attr>
+        <attr name="text_color" format="color"></attr>
+        <attr name="text_status_color" format="color"></attr>
+        <attr name="button_color" format="color"></attr>
+        <attr name="button_text_color" format="color"></attr>
+        <attr name="checkbox_tintcolor" format="color"></attr>
+
+
+    </declare-styleable>
+</resources>
