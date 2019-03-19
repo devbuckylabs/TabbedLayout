@@ -13,7 +13,8 @@
         <item name="button_color">@color/colorPrimary</item>
         <item name="button_text_color">@color/white</item>
         <item name="checkbox_tintcolor">@color/black_light</item>
-
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
 
     </style>
 
@@ -28,7 +29,8 @@
         <item name="button_color">@color/gold</item>
         <item name="button_text_color">@color/white</item>
         <item name="checkbox_tintcolor">@color/white</item>
-
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
 
     </style>
 
