@@ -172,9 +172,9 @@ if(isDark){
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-            intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsActivity.GeneralPreferenceFragment.class.getName());
-            intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
+            Intent intent = new Intent(MainActivity.this, SettingsActivityNew.class);
+            /*intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsActivity.GeneralPreferenceFragment.class.getName());
+            intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);*/
 
             startActivity(intent);
             return true;
