@@ -5,7 +5,11 @@
         android:defaultValue="true"
         android:key="example_switch"
         android:textColor="@color/white"
-        android:summary="@string/pref_description_social_recommendations"
-        android:title="@string/pref_title_social_recommendations" />
+        android:summary="Premium Feature"
+        android:title="Enable Dark Theme" />
+
+   <CheckBoxPreference
+       android:title="Show System Apps"
+       android:key="show_sys_apps"/>
 
 </PreferenceScreen>

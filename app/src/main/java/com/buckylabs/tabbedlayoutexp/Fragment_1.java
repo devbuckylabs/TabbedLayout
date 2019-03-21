@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -77,7 +78,7 @@ public class Fragment_1 extends Fragment {
     private Handler handler;
     SharedPreferences preferences;
     String rootPath;
-    public static final int  MY_PERMISSIONS_REQUEST_EXTERNAL_STORAGE = 346;
+
 
     public Fragment_1() {
         // Required empty public constructor
@@ -123,7 +124,8 @@ public class Fragment_1 extends Fragment {
         recyclerView.setAdapter(adapter);
 
         createDirectory();
-
+        preferences= PreferenceManager.getDefaultSharedPreferences(getActivity());
+        isSys= preferences.getBoolean("show_sys_apps", false);
 
     }
 
@@ -132,16 +134,11 @@ public class Fragment_1 extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+
                 populateRecyclerview();
-            }
-        }).start();
+
 
     }
-
-
 
 
     @Override
@@ -173,10 +170,9 @@ public class Fragment_1 extends Fragment {
                 ApplicationInfo AppInfo = app;
                 File file = new File(app.sourceDir);
                 String Appsize = (String) getAppSize(file.length());
-                boolean isChecked = isSys;
+                boolean isChecked = false;
                 Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
-                apks.add(apk);
-
+                installedApks.add(apk);
             } else {
 
                 if ((app.flags & (ApplicationInfo.FLAG_UPDATED_SYSTEM_APP | ApplicationInfo.FLAG_SYSTEM)) > 0) {
@@ -194,7 +190,7 @@ public class Fragment_1 extends Fragment {
                     File file = new File(app.sourceDir);
                     String Appsize = (String) getAppSize(file.length());
 
-                    boolean isChecked = isSys;
+                    boolean isChecked = false;
                     Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
 
                     installedApks.add(apk);
@@ -206,9 +202,10 @@ public class Fragment_1 extends Fragment {
         }
 
         if (installedApks.size() <= 0) {
+            Log.e("Empty List","*****************************************************");
             return new ArrayList<>();
         }
-
+        Log.e("InstalledList","*****"+installedApks.toString());
         return installedApks;
     }
 
@@ -216,9 +213,9 @@ public class Fragment_1 extends Fragment {
 
 
     public void populateRecyclerview(){
-        List<Apk> installedApks=new ArrayList<>();
+
         try {
-            installedApks=getApks(isSys);
+            getApks(isSys);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -238,8 +235,7 @@ public class Fragment_1 extends Fragment {
             apks.add(apk1);
 
         }
-
-
+refresh();
 
     }
 
@@ -285,7 +281,7 @@ public class Fragment_1 extends Fragment {
             archivedApks.add(apk);
 
 
-            // apks.add(apk);
+
 
         }
 
@@ -327,7 +323,6 @@ public class Fragment_1 extends Fragment {
 
     public void backupApks() {
         createDirectory();
-
         Log.e("Apksssssssss", apks.toString());
         for (Apk apk : apks) {
 
@@ -341,7 +336,7 @@ public class Fragment_1 extends Fragment {
             Toasty.info(getContext(), "No Apps Selected.", Toast.LENGTH_SHORT, true).show();
         } else {
 
-            Log.e("Apps", (listofApkstoBackup.size()) + "");
+            Log.e("AppsinBackup()", (listofApkstoBackup.size()) + ""+listofApkstoBackup.toString());
 
             writeData(listofApkstoBackup);
             Toasty.success(getContext(), "Archived", Toast.LENGTH_SHORT, true).show();
@@ -372,7 +367,7 @@ public class Fragment_1 extends Fragment {
                     f2.mkdirs();
                 }
 
-                f2 = new File(f2.getPath() + "/" + file_name + ".apk");
+                f2 = new File(rootPath + "/" + file_name + ".apk");
                 f2.createNewFile();
                 InputStream in = new FileInputStream(f1);
                 FileOutputStream out = new FileOutputStream(f2);
@@ -385,6 +380,8 @@ public class Fragment_1 extends Fragment {
                 out.flush();
                 out.close();
             } catch (Exception e) {
+
+                Log.e("Exception","********************************************* ");
                 e.printStackTrace();
             }
         }
