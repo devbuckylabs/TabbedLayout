@@ -99,7 +99,6 @@ if(isDark){
                     ((Fragment_1)mSectionsPagerAdapter.getItem(0)).backupApks();
 
 
-
                 }else {
                     Toast.makeText(MainActivity.this, "Restored   ", Toast.LENGTH_SHORT).show();
 

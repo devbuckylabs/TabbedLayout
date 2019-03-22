@@ -243,12 +243,12 @@ refresh();
 
 
     public List<Apk> getArchivedApps() {
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup_Pro";
-        File directory = new File(path);
+       // String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup_Pro/";
+        File directory = new File(rootPath);
         File[] files = directory.listFiles();
         for (File file : files) {
             Log.e("Archive FilesName", "" + file.getName());
-            PackageInfo packinfo = pm.getPackageArchiveInfo(path + "/" + file.getName(), 0);
+            PackageInfo packinfo = pm.getPackageArchiveInfo(rootPath + "/" + file.getName(), 0);
             ApplicationInfo info;
             try {
                 info = pm.getApplicationInfo(packinfo.packageName, PackageManager.GET_META_DATA);
@@ -322,7 +322,7 @@ refresh();
 
 
     public void backupApks() {
-        createDirectory();
+        //createDirectory();
         Log.e("Apksssssssss", apks.toString());
         for (Apk apk : apks) {
 
