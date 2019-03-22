@@ -4,47 +4,30 @@ import android.content.pm.ApplicationInfo;
 import android.graphics.drawable.Drawable;
 
 public class Apk {
-
+    private String AppName;
     private String AppPackage;
     private String AppStatus;
     private String AppVersionName;
     private String date;
     private String AppSize;
-    private ApplicationInfo AppInfo;
+    private String sourceDirectory;
     private boolean isChecked;
-    private String AppName;
     private Drawable AppIcon;
 
 
-    public Apk(String appName, Drawable appIcon, String appPackage, String appStatus, String appVersionName, String date, String appSize, ApplicationInfo appInfo, boolean isChecked) {
-        AppName = appName;
-        AppIcon = appIcon;
+    public Apk(String appName, Drawable appIcon,String appPackage, String appStatus, String appVersionName, String date, String appSize, String sourceDirectory, boolean isChecked ) {
         AppPackage = appPackage;
         AppStatus = appStatus;
         AppVersionName = appVersionName;
         this.date = date;
         AppSize = appSize;
-        AppInfo = appInfo;
+        this.sourceDirectory = sourceDirectory;
         this.isChecked = isChecked;
-    }
-
-
-    public String getAppName() {
-        return AppName;
-
-    }
-
-    public void setAppName(String appName) {
         AppName = appName;
-    }
-
-    public Drawable getAppIcon() {
-        return AppIcon;
-    }
-
-    public void setAppIcon(Drawable appIcon) {
         AppIcon = appIcon;
     }
+
+
 
     public String getAppPackage() {
         return AppPackage;
@@ -86,12 +69,12 @@ public class Apk {
         AppSize = appSize;
     }
 
-    public ApplicationInfo getAppInfo() {
-        return AppInfo;
+    public String getSourceDirectory() {
+        return sourceDirectory;
     }
 
-    public void setAppInfo(ApplicationInfo appInfo) {
-        AppInfo = appInfo;
+    public void setSourceDirectory(String sourceDirectory) {
+        this.sourceDirectory = sourceDirectory;
     }
 
     public boolean isChecked() {
@@ -102,6 +85,23 @@ public class Apk {
         isChecked = checked;
     }
 
+    public String getAppName() {
+        return AppName;
+    }
+
+    public void setAppName(String appName) {
+        AppName = appName;
+    }
+
+    public Drawable getAppIcon() {
+        return AppIcon;
+    }
+
+    public void setAppIcon(Drawable appIcon) {
+        AppIcon = appIcon;
+    }
+
+
 
     @Override
     public String toString() {
@@ -111,13 +111,12 @@ public class Apk {
                 ", AppVersionName='" + AppVersionName + '\'' +
                 ", date='" + date + '\'' +
                 ", AppSize='" + AppSize + '\'' +
-                ", AppInfo=" + AppInfo +
+                ", sourceDirectory='" + sourceDirectory + '\'' +
                 ", isChecked=" + isChecked +
                 ", AppName='" + AppName + '\'' +
                 ", AppIcon=" + AppIcon +
                 '}';
     }
-
 
 
 }

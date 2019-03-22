@@ -152,19 +152,8 @@ public class Fragment_2 extends Fragment {
                 packinfo.applicationInfo.publicSourceDir=file.getAbsolutePath();
 
 
-            String AppName = (String) packinfo.applicationInfo.loadLabel(pm);
-            Drawable AppIcon = packinfo.applicationInfo.loadIcon(pm);
-            String AppPackage = packinfo.packageName;
-            String AppVersionName = packinfo.versionName;
-            long time = new File(packinfo.applicationInfo.sourceDir).lastModified();
-            String date=getAppDate(time);
-            Log.e("Dateeeee",packinfo.lastUpdateTime+"");
-            ApplicationInfo AppInfo = info;
-            String AppStatus = "";
-            File file1 = new File(packinfo.applicationInfo.sourceDir);
-            String Appsize = getAppSize(file1.length());
-            boolean isChecked = false;
-            Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
+
+            Apk apk = getApk(packinfo);
             archivedApks.add(apk);
 
 
@@ -178,6 +167,11 @@ public class Fragment_2 extends Fragment {
 
 
 public void populateRecyclerview() {
+
+        archivedApks.clear();
+        apks.clear();
+
+
     List<Apk> installedApks = new ArrayList<>();
     try {
         installedApks = getInstalledApks(false);
@@ -230,17 +224,8 @@ public void populateRecyclerview() {
             if (isSys) {
 
 
-                String AppName = app.loadLabel(pm).toString();
-                Drawable AppIcon = app.loadIcon(pm);
-                String AppPackage = packageInfo.packageName;
-                String AppStatus = "";
-                String AppVersionName = packageInfo.versionName;
-                String date = getAppDate(packageInfo.lastUpdateTime);
-                ApplicationInfo AppInfo = app;
-                File file = new File(app.sourceDir);
-                String Appsize = (String) getAppSize(file.length());
-                boolean isChecked = isSys;
-                Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
+
+                Apk apk = getApk(packageInfo);
                 apks.add(apk);
 
             } else {
@@ -250,18 +235,8 @@ public void populateRecyclerview() {
                 } else {
 
 
-                    String AppName = app.loadLabel(pm).toString();
-                    Drawable AppIcon = app.loadIcon(pm);
-                    String AppStatus = "";
-                    String AppPackage = packageInfo.packageName;
-                    String AppVersionName = packageInfo.versionName;
-                    String date = getAppDate(packageInfo.lastUpdateTime);
-                    ApplicationInfo AppInfo = app;
-                    File file = new File(app.sourceDir);
-                    String Appsize = (String) getAppSize(file.length());
 
-                    boolean isChecked = isSys;
-                    Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
+                    Apk apk = getApk(packageInfo);
 
 
 
@@ -279,6 +254,28 @@ public void populateRecyclerview() {
 
 return installedapks;
     }
+
+    public Apk getApk(PackageInfo packinfo) {
+
+        String AppName = (String) packinfo.applicationInfo.loadLabel(pm);
+        Drawable AppIcon = packinfo.applicationInfo.loadIcon(pm);
+        String AppPackage = packinfo.packageName;
+        String AppVersionName = packinfo.versionName;
+        long time = new File(packinfo.applicationInfo.sourceDir).lastModified();
+        String date = getAppDate(time);
+        Log.e("Dateeeee", packinfo.lastUpdateTime + "");
+        String sourcedirectory = packinfo.applicationInfo.sourceDir;
+        String AppStatus = "";
+        File file1 = new File(packinfo.applicationInfo.sourceDir);
+        String Appsize = getAppSize(file1.length());
+        boolean isChecked = false;
+        Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, sourcedirectory, isChecked);
+
+        return apk;
+
+    }
+
+
 
 
     public void InstallApplication() {

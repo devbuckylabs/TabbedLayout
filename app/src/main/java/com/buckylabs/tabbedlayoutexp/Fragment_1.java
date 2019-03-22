@@ -2,6 +2,7 @@ package com.buckylabs.tabbedlayoutexp;
 
 import android.Manifest;
 import android.app.Application;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -74,11 +75,9 @@ public class Fragment_1 extends Fragment {
     private boolean isSys;
     private AdapterInstalledApps adapter;
     private boolean isAllChecked;
-    private List<ApplicationInfo> listofApkstoBackup;
-    private Handler handler;
     SharedPreferences preferences;
     String rootPath;
-
+    ProgressDialog progressDialog;
 
     public Fragment_1() {
         // Required empty public constructor
@@ -91,17 +90,15 @@ public class Fragment_1 extends Fragment {
         // Inflate the layout for this fragment
 
         View v = inflater.inflate(R.layout.fragment_1, container, false);
-
         recyclerView = v.findViewById(R.id.recyclerView);
         pm = getActivity().getPackageManager();
         isChecked = false;
         isSys = false;
         isAllChecked = true;
         apks = new ArrayList<>();
-        listofApkstoBackup = new ArrayList<>();
         installedApks = new ArrayList<>();
         archivedApks = new ArrayList<>();
-        handler = new Handler(getMainLooper());
+        progressDialog = new ProgressDialog(getContext());
         rootPath = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/App_Backup_Pro/";
         return v;
@@ -124,8 +121,8 @@ public class Fragment_1 extends Fragment {
         recyclerView.setAdapter(adapter);
 
         createDirectory();
-        preferences= PreferenceManager.getDefaultSharedPreferences(getActivity());
-        isSys= preferences.getBoolean("show_sys_apps", false);
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        isSys = preferences.getBoolean("show_sys_apps", false);
 
     }
 
@@ -135,7 +132,7 @@ public class Fragment_1 extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
 
-                populateRecyclerview();
+        populateRecyclerview();
 
 
     }
@@ -160,18 +157,7 @@ public class Fragment_1 extends Fragment {
             PackageInfo packageInfo = pm.getPackageInfo(app.packageName, PackageManager.GET_META_DATA);
             if (isSys) {
 
-
-                String AppName = app.loadLabel(pm).toString();
-                Drawable AppIcon = app.loadIcon(pm);
-                String AppPackage = packageInfo.packageName;
-                String AppStatus = "";
-                String AppVersionName = packageInfo.versionName;
-                String date = getAppDate(packageInfo.lastUpdateTime);
-                ApplicationInfo AppInfo = app;
-                File file = new File(app.sourceDir);
-                String Appsize = (String) getAppSize(file.length());
-                boolean isChecked = false;
-                Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
+                Apk apk = getApk(packageInfo);
                 installedApks.add(apk);
             } else {
 
@@ -179,20 +165,7 @@ public class Fragment_1 extends Fragment {
 
                 } else {
 
-
-                    String AppName = app.loadLabel(pm).toString();
-                    Drawable AppIcon = app.loadIcon(pm);
-                    String AppStatus = "";
-                    String AppPackage = packageInfo.packageName;
-                    String AppVersionName = packageInfo.versionName;
-                    String date = getAppDate(packageInfo.lastUpdateTime);
-                    ApplicationInfo AppInfo = app;
-                    File file = new File(app.sourceDir);
-                    String Appsize = (String) getAppSize(file.length());
-
-                    boolean isChecked = false;
-                    Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
-
+                    Apk apk = getApk(packageInfo);
                     installedApks.add(apk);
 
                 }
@@ -202,31 +175,29 @@ public class Fragment_1 extends Fragment {
         }
 
         if (installedApks.size() <= 0) {
-            Log.e("Empty List","*****************************************************");
+            Log.e("Empty List", "*****************************************************");
             return new ArrayList<>();
         }
-        Log.e("InstalledList","*****"+installedApks.toString());
+        Log.e("InstalledList", "*****" + installedApks.toString());
         return installedApks;
     }
 
 
-
-
-    public void populateRecyclerview(){
+    public void populateRecyclerview() {
 
         try {
             getApks(isSys);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        List<Apk> archivedApks=getArchivedApps();
+        List<Apk> archivedApks = getArchivedApps();
 
 
-        for(Apk apk1:installedApks){
+        for (Apk apk1 : installedApks) {
 
-            for (Apk apk2:archivedApks){
+            for (Apk apk2 : archivedApks) {
 
-                if(apk1.getAppName().equals(apk2.getAppName())){
+                if (apk1.getAppName().equals(apk2.getAppName())) {
 
                     apk1.setAppStatus("Archived");
 
@@ -235,57 +206,47 @@ public class Fragment_1 extends Fragment {
             apks.add(apk1);
 
         }
-refresh();
+        refresh();
 
     }
 
 
-
-
     public List<Apk> getArchivedApps() {
-       // String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup_Pro/";
+
         File directory = new File(rootPath);
         File[] files = directory.listFiles();
         for (File file : files) {
             Log.e("Archive FilesName", "" + file.getName());
             PackageInfo packinfo = pm.getPackageArchiveInfo(rootPath + "/" + file.getName(), 0);
-            ApplicationInfo info;
-            try {
-                info = pm.getApplicationInfo(packinfo.packageName, PackageManager.GET_META_DATA);
+            packinfo.applicationInfo.sourceDir = file.getAbsolutePath();
+            packinfo.applicationInfo.publicSourceDir = file.getAbsolutePath();
 
-            } catch (PackageManager.NameNotFoundException e) {
-
-                info = null;
-                packinfo.applicationInfo.sourceDir=file.getAbsolutePath();
-                packinfo.applicationInfo.publicSourceDir=file.getAbsolutePath();
-
-            }
-
-            packinfo.applicationInfo.sourceDir=file.getAbsolutePath();
-            packinfo.applicationInfo.publicSourceDir=file.getAbsolutePath();
-
-
-            String AppName = (String) packinfo.applicationInfo.loadLabel(pm);
-            Drawable AppIcon = packinfo.applicationInfo.loadIcon(pm);
-            String AppPackage = packinfo.packageName;
-            String AppVersionName = packinfo.versionName;
-            long time = new File(packinfo.applicationInfo.sourceDir).lastModified();
-            String date=getAppDate(time);
-            Log.e("Dateeeee",packinfo.lastUpdateTime+"");
-            ApplicationInfo AppInfo = info;
-            String AppStatus = "";
-            File file1 = new File(packinfo.applicationInfo.sourceDir);
-            String Appsize = getAppSize(file1.length());
-            boolean isChecked = false;
-            Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, AppInfo, isChecked);
+            Apk apk = getApk(packinfo);
             archivedApks.add(apk);
-
-
-
 
         }
 
         return archivedApks;
+
+    }
+
+    public Apk getApk(PackageInfo packinfo) {
+
+        String AppName = (String) packinfo.applicationInfo.loadLabel(pm);
+        Drawable AppIcon = packinfo.applicationInfo.loadIcon(pm);
+        String AppPackage = packinfo.packageName;
+        String AppVersionName = packinfo.versionName;
+        long time = new File(packinfo.applicationInfo.sourceDir).lastModified();
+        String date = getAppDate(time);
+        Log.e("Dateeeee", packinfo.lastUpdateTime + "");
+        String sourcedirectory = packinfo.applicationInfo.sourceDir;
+        String AppStatus = "";
+        File file1 = new File(packinfo.applicationInfo.sourceDir);
+        String Appsize = getAppSize(file1.length());
+        boolean isChecked = false;
+        Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, sourcedirectory, isChecked);
+
+        return apk;
 
     }
 
@@ -321,27 +282,70 @@ refresh();
     }
 
 
+    public void backupHelperInit() {
+        refresh();
+        List<Apk> listApk = new ArrayList<>();
+
+        for (Apk apk : apks) {
+            if (apk.isChecked()) {
+                listApk.add(apk);
+            }
+        }
+        Apk arrayApk[] = new Apk[listApk.size()];
+        for (int k = 0; k < listApk.size(); k++) {
+            arrayApk[k] = listApk.get(k);
+        }
+
+        BackupHelper backupHelper = new BackupHelper(getContext(), progressDialog);
+        backupHelper.execute(arrayApk);
+    }
+
+
     public void backupApks() {
-        //createDirectory();
+
         Log.e("Apksssssssss", apks.toString());
         for (Apk apk : apks) {
 
             if (apk.isChecked()) {
-                listofApkstoBackup.add(apk.getAppInfo());
+                writeData(apk);
                 updateStatus(apk);
 
             }
+
         }
-        if (listofApkstoBackup.size() == 0) {
-            Toasty.info(getContext(), "No Apps Selected.", Toast.LENGTH_SHORT, true).show();
-        } else {
+        Toasty.success(getContext(), "Archived", Toast.LENGTH_SHORT, true).show();
+        uncheckAllBoxes();
 
-            Log.e("AppsinBackup()", (listofApkstoBackup.size()) + ""+listofApkstoBackup.toString());
+    }
 
-            writeData(listofApkstoBackup);
-            Toasty.success(getContext(), "Archived", Toast.LENGTH_SHORT, true).show();
-            listofApkstoBackup.clear();
-            uncheckAllBoxes();
+
+    public void writeData(Apk apk) {
+
+        try {
+            File f1 = new File(apk.getSourceDirectory());
+
+            String file_name = apk.getAppName();
+            File f2 = new File(rootPath);
+            if (!f2.exists()) {
+                f2.mkdirs();
+            }
+
+            f2 = new File(rootPath + "/" + file_name + ".apk");
+            f2.createNewFile();
+            InputStream in = new FileInputStream(f1);
+            FileOutputStream out = new FileOutputStream(f2);
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            Log.e("BackUp Complete ", file_name);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+
+            Log.e("Exception", "********************************************* ");
+            e.printStackTrace();
         }
 
 
@@ -350,45 +354,9 @@ refresh();
     private void updateStatus(Apk apk) {
 
         apk.setAppStatus("Archived");
-        refresh();
+        //refresh();
 
     }
-
-
-    public void writeData(List<ApplicationInfo> listapks) {
-        for (ApplicationInfo info : listapks) {
-
-            try {
-                File f1 = new File(info.sourceDir);
-
-                String file_name = info.loadLabel(pm).toString();
-                File f2 = new File(rootPath);
-                if (!f2.exists()) {
-                    f2.mkdirs();
-                }
-
-                f2 = new File(rootPath + "/" + file_name + ".apk");
-                f2.createNewFile();
-                InputStream in = new FileInputStream(f1);
-                FileOutputStream out = new FileOutputStream(f2);
-                byte[] buf = new byte[1024];
-                int len;
-                while ((len = in.read(buf)) > 0) {
-                    out.write(buf, 0, len);
-                }
-                Log.e("BackUp Complete ", file_name);
-                out.flush();
-                out.close();
-            } catch (Exception e) {
-
-                Log.e("Exception","********************************************* ");
-                e.printStackTrace();
-            }
-        }
-
-
-    }
-
 
     public void uncheckAllBoxes() {
 
@@ -420,6 +388,102 @@ refresh();
 
     public void refresh() {
         adapter.notifyDataSetChanged();
+    }
+
+
+    class BackupHelper extends AsyncTask<Apk, Integer, String> {
+
+        Context context;
+        ProgressDialog progressDialog;
+
+        public BackupHelper(Context context, ProgressDialog progressDialog) {
+            this.context = context;
+            this.progressDialog = progressDialog;
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.setTitle("Baacking Up Apps");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setMax(100);
+            progressDialog.setMessage("hey");
+            progressDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(Apk... listApks) {
+            progressDialog.setMax(listApks.length);
+            int k = 0;
+            for (Apk apk : listApks) {
+                {
+
+                    if (apk.isChecked()) {
+                        progressDialog.setMessage(apk.getAppName());
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            File f1 = new File(apk.getSourceDirectory());
+
+                            String file_name = apk.getAppName();
+                            File f2 = new File(rootPath);
+                            if (!f2.exists()) {
+                                f2.mkdirs();
+                            }
+
+                            f2 = new File(rootPath + "/" + file_name + ".apk");
+                            f2.createNewFile();
+                            InputStream in = new FileInputStream(f1);
+                            FileOutputStream out = new FileOutputStream(f2);
+                            byte[] buf = new byte[1024];
+                            int len;
+                            while ((len = in.read(buf)) > 0) {
+                                out.write(buf, 0, len);
+                            }
+                            //   Log.e("BackUp Complete ", file_name);
+                            out.flush();
+                            out.close();
+                        } catch (Exception e) {
+
+                            // Log.e("Exception", "********************************************* ");
+                            e.printStackTrace();
+                        }
+
+
+                        updateStatus(apk);
+                        publishProgress(k++);
+                    }
+
+                }
+                // Toasty.success(getContext(), "Archived", Toast.LENGTH_SHORT, true).show();
+
+
+            }
+
+            return null;
+        }
+
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            progressDialog.incrementProgressBy(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            progressDialog.setProgress(0);
+            progressDialog.dismiss();
+            uncheckAllBoxes();
+            refresh();
+
+        }
     }
 
 

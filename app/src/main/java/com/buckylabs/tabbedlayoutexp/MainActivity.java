@@ -96,7 +96,8 @@ if(isDark){
                     Toast.makeText(MainActivity.this, "Installed   ", Toast.LENGTH_SHORT).show();
                     TabLayout.Tab tab=tabLayout.getTabAt(0);
 
-                    ((Fragment_1)mSectionsPagerAdapter.getItem(0)).backupApks();
+                    ((Fragment_1)mSectionsPagerAdapter.getItem(0)).backupHelperInit();
+
 
 
                 }else {
