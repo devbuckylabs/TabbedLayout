@@ -2,34 +2,20 @@ package com.buckylabs.tabbedlayoutexp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.TabLayout.Tab;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
-
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.prefs.Preferences;
+import es.dmoral.toasty.Toasty;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,11 +27,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (preferences.getBoolean("example_switch", false)) {
+            setTheme(R.style.DarkTheme);
+            // recreate();
+        } else {
+            setTheme(R.style.AppTheme);
+            // recreate();
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        preferences= PreferenceManager.getDefaultSharedPreferences(this);
 
 
 
@@ -129,6 +120,12 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Toast.makeText(this, "Back", Toast.LENGTH_SHORT).show();
+        finish();
+    }
 
     private void setupViewPager (ViewPager mViewPager){
             mSectionsPagerAdapter = new PageAdapter(getSupportFragmentManager());

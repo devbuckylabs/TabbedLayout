@@ -117,7 +117,6 @@ public class Fragment_2 extends Fragment {
     public void onResume() {
         super.onResume();
         refresh();
-
         Toast.makeText(getActivity(), "onResume", Toast.LENGTH_SHORT).show();
     }
 
@@ -125,7 +124,12 @@ public class Fragment_2 extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
        super.onActivityCreated(savedInstanceState);
-        populateRecyclerview();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                populateRecyclerview();
+            }
+        }, 30);
 
     }
 

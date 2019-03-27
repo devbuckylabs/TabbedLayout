@@ -1,5 +1,6 @@
 package com.buckylabs.tabbedlayoutexp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.preference.PreferenceActivity;
@@ -11,36 +12,53 @@ import android.support.v7.app.AppCompatDelegate;
 
 public class SettingsActivityNew extends PreferenceActivity {
     SharedPreferences preferences;
+    SharedPreferences.OnSharedPreferenceChangeListener listener;
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
-        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (preferences.getBoolean("example_switch", false)) {
             setTheme(R.style.PreferencesDarkTheme);
+            // recreate();
         } else {
             setTheme(R.style.PreferencesTheme);
-
+            // recreate();
         }
         super.onCreate(savedInstanceState);
         getFragmentManager().beginTransaction().replace(android.R.id.content, new MyPreferenceFragment()).commit();
 
 
-        preferences= PreferenceManager.getDefaultSharedPreferences(this);
-        boolean isDark = preferences.getBoolean("example_switch", false);
+        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                // Implementation
 
 
+                if (key.equals("example_switch")) {
 
-       if(isDark){
+                    boolean value = preferences.getBoolean("example_switch", false);
 
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    if (value) {
 
-        }else{
+                        Intent i = new Intent(SettingsActivityNew.this, MainActivity.class);
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(i);
+                        finish();
 
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    } else {
+
+                        Intent i = new Intent(SettingsActivityNew.this, MainActivity.class);
+                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(i);
+                        finish();
+
+                    }
+                }
 
 
-        }
+            }
+        };
+        preferences.registerOnSharedPreferenceChangeListener(listener);
     }
-
 
 
     public static class MyPreferenceFragment extends PreferenceFragment

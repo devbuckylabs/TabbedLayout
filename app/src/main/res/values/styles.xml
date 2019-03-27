@@ -12,11 +12,11 @@
         <item name="button_color">@color/colorPrimary</item>
         <item name="button_text_color">@color/white</item>
         <item name="checkbox_tintcolor">@color/black_light</item>
+        <item name="android:actionBarStyle">@style/AppTheme.DarkActionBar</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-
-
     </style>
+
 
     <style name="DarkTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
@@ -29,8 +29,10 @@
         <item name="button_color">@color/gold</item>
         <item name="button_text_color">@color/white</item>
         <item name="checkbox_tintcolor">@color/white</item>
+        <item name="android:actionBarStyle">@style/DarkTheme.DarkActionBar</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+
 
     </style>
 
@@ -88,25 +90,22 @@
     </style>
 
 
+    <style name="DarkTheme.DarkActionBar">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorPrimary">@color/black_light</item>
 
-    <style name="DarkTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
     </style>
+
 
     <style name="DarkTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="DarkTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 
+    <style name="AppTheme.DarkActionBar">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
 
-
-
-
-
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

@@ -77,7 +77,8 @@ public class Fragment_1 extends Fragment {
     private boolean isAllChecked;
     SharedPreferences preferences;
     String rootPath;
-    ProgressDialog progressDialog;
+    Handler handler;
+    //ProgressDialog progressDialog;
 
     public Fragment_1() {
         // Required empty public constructor
@@ -95,10 +96,11 @@ public class Fragment_1 extends Fragment {
         isChecked = false;
         isSys = false;
         isAllChecked = true;
+        handler = new Handler(getMainLooper());
         apks = new ArrayList<>();
         installedApks = new ArrayList<>();
         archivedApks = new ArrayList<>();
-        progressDialog = new ProgressDialog(getContext());
+
         rootPath = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/App_Backup_Pro/";
         return v;
@@ -132,10 +134,15 @@ public class Fragment_1 extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
 
-        populateRecyclerview();
-
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                populateRecyclerview();
+            }
+        }, 30);
 
     }
+
 
 
     @Override
@@ -143,6 +150,7 @@ public class Fragment_1 extends Fragment {
         super.onResume();
         refresh();
     }
+
 
     public List<Apk> getApks(boolean isSys) throws PackageManager.NameNotFoundException {
 
@@ -283,7 +291,7 @@ public class Fragment_1 extends Fragment {
 
 
     public void backupHelperInit() {
-        refresh();
+
         List<Apk> listApk = new ArrayList<>();
 
         for (Apk apk : apks) {
@@ -291,12 +299,13 @@ public class Fragment_1 extends Fragment {
                 listApk.add(apk);
             }
         }
+
         Apk arrayApk[] = new Apk[listApk.size()];
         for (int k = 0; k < listApk.size(); k++) {
             arrayApk[k] = listApk.get(k);
         }
 
-        BackupHelper backupHelper = new BackupHelper(getContext(), progressDialog);
+        BackupHelper backupHelper = new BackupHelper(getContext());
         backupHelper.execute(arrayApk);
     }
 
@@ -396,37 +405,36 @@ public class Fragment_1 extends Fragment {
         Context context;
         ProgressDialog progressDialog;
 
-        public BackupHelper(Context context, ProgressDialog progressDialog) {
+        public BackupHelper(Context context) {
             this.context = context;
-            this.progressDialog = progressDialog;
         }
 
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
             progressDialog.setTitle("Baacking Up Apps");
             progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.setMax(100);
+            // progressDialog.setIndeterminate(true);
             progressDialog.setMessage("hey");
             progressDialog.show();
         }
 
         @Override
         protected String doInBackground(Apk... listApks) {
-            progressDialog.setMax(listApks.length);
-            int k = 0;
+            //progressDialog.setMax(listApks.length);
+            int k = 1;
+            int i = 1;
             for (Apk apk : listApks) {
                 {
 
                     if (apk.isChecked()) {
-                        progressDialog.setMessage(apk.getAppName());
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        // progressDialog.setProgress(0);
+                        progressDialog.setMessage(apk.getAppName() + "  " + (i) + "/" + listApks.length);
+
                         try {
                             File f1 = new File(apk.getSourceDirectory());
 
@@ -456,7 +464,11 @@ public class Fragment_1 extends Fragment {
 
 
                         updateStatus(apk);
-                        publishProgress(k++);
+                        k += (int) (100 / (listApks.length - 1));
+                        publishProgress(k);
+                        i++;
+                        // progressDialog.setProgress(0);
+
                     }
 
                 }
@@ -472,15 +484,18 @@ public class Fragment_1 extends Fragment {
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
+            Log.e("onProgessUpdate", values[0] + "");
             progressDialog.incrementProgressBy(values[0]);
         }
 
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            progressDialog.setProgress(0);
+            // progressDialog.setProgress(0);
             progressDialog.dismiss();
+            progressDialog.cancel();
             uncheckAllBoxes();
+            Toasty.success(getContext(), "Archived", Toast.LENGTH_SHORT, true).show();
             refresh();
 
         }

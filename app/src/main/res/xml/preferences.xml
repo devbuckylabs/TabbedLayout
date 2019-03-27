@@ -4,12 +4,15 @@
     <SwitchPreference
         android:defaultValue="true"
         android:key="example_switch"
-        android:textColor="@color/white"
         android:summary="Premium Feature"
-        android:title="Enable Dark Theme" />
+        android:textColor="@color/white"
+        android:title="Enable Dark Theme">
 
-   <CheckBoxPreference
-       android:title="Show System Apps"
-       android:key="show_sys_apps"/>
+    </SwitchPreference>
+
+
+    <CheckBoxPreference
+        android:key="show_sys_apps"
+        android:title="Show System Apps" />
 
 </PreferenceScreen>
