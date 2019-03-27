@@ -15,4 +15,12 @@
         android:key="show_sys_apps"
         android:title="Show System Apps" />
 
+    <CheckBoxPreference
+        android:key="override"
+        android:title="Override old version " />
+
+    <CheckBoxPreference
+        android:key="auto_backup"
+        android:title="Enable Auto Backup" />
+
 </PreferenceScreen>

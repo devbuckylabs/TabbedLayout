@@ -43,10 +43,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.spi.FileTypeDetector;
 import java.text.SimpleDateFormat;
@@ -73,9 +75,12 @@ public class Fragment_1 extends Fragment {
     private PackageManager pm;
     private boolean isChecked;
     private boolean isSys;
+    private boolean isOverride;
+    private boolean isAutoBackup;
     private AdapterInstalledApps adapter;
     private boolean isAllChecked;
     SharedPreferences preferences;
+
     String rootPath;
     Handler handler;
     //ProgressDialog progressDialog;
@@ -95,6 +100,8 @@ public class Fragment_1 extends Fragment {
         pm = getActivity().getPackageManager();
         isChecked = false;
         isSys = false;
+        isOverride = false;
+        isAutoBackup = false;
         isAllChecked = true;
         handler = new Handler(getMainLooper());
         apks = new ArrayList<>();
@@ -125,6 +132,9 @@ public class Fragment_1 extends Fragment {
         createDirectory();
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         isSys = preferences.getBoolean("show_sys_apps", false);
+        isOverride = preferences.getBoolean("override", false);
+        isAutoBackup = preferences.getBoolean("auto_backup", false);
+
 
     }
 
@@ -205,7 +215,7 @@ public class Fragment_1 extends Fragment {
 
             for (Apk apk2 : archivedApks) {
 
-                if (apk1.getAppName().equals(apk2.getAppName())) {
+                if (apk1.getAppName().equals(apk2.getAppName()) && apk1.getAppVersionName().equals(apk2.getAppVersionName())) {
 
                     apk1.setAppStatus("Archived");
 
@@ -404,6 +414,7 @@ public class Fragment_1 extends Fragment {
 
         Context context;
         ProgressDialog progressDialog;
+        boolean isDeleted;
 
         public BackupHelper(Context context) {
             this.context = context;
@@ -428,23 +439,49 @@ public class Fragment_1 extends Fragment {
             //progressDialog.setMax(listApks.length);
             int k = 1;
             int i = 1;
-            for (Apk apk : listApks) {
+            for (final Apk apk : listApks) {
                 {
 
                     if (apk.isChecked()) {
                         // progressDialog.setProgress(0);
                         progressDialog.setMessage(apk.getAppName() + "  " + (i) + "/" + listApks.length);
 
+                        StringBuilder Appname = new StringBuilder();
+                        Appname.append(apk.getAppName());
+                        Appname.append("-");
+                        Appname.append(apk.getAppPackage());
+                        Appname.append("-");
+                        Appname.append(apk.getAppVersionName());
                         try {
                             File f1 = new File(apk.getSourceDirectory());
-
-                            String file_name = apk.getAppName();
                             File f2 = new File(rootPath);
                             if (!f2.exists()) {
                                 f2.mkdirs();
                             }
+                            if (isOverride) {
+                                File[] files = f2.listFiles(new FilenameFilter() {
+                                    @Override
+                                    public boolean accept(File dir, String name) {
 
-                            f2 = new File(rootPath + "/" + file_name + ".apk");
+                                        boolean result;
+                                        if (name.startsWith(apk.getAppName())) {
+                                            result = true;
+                                            return result;
+                                        } else {
+                                            result = false;
+                                        }
+
+                                        return result;
+                                    }
+                                });
+
+                                for (File f : files) {
+                                    f.delete();
+                                    isDeleted = true;
+                                }
+                            }
+
+                            f2 = new File(rootPath + "/" + Appname + ".apk");
                             f2.createNewFile();
                             InputStream in = new FileInputStream(f1);
                             FileOutputStream out = new FileOutputStream(f2);
@@ -464,7 +501,7 @@ public class Fragment_1 extends Fragment {
 
 
                         updateStatus(apk);
-                        k += (int) (100 / (listApks.length - 1));
+                        k += (int) (100 / (listApks.length));
                         publishProgress(k);
                         i++;
                         // progressDialog.setProgress(0);
@@ -491,6 +528,7 @@ public class Fragment_1 extends Fragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            Log.e("Delete", isDeleted + " ");
             // progressDialog.setProgress(0);
             progressDialog.dismiss();
             progressDialog.cancel();

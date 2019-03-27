@@ -3,12 +3,9 @@ package com.buckylabs.tabbedlayoutexp;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,7 +28,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
     @Override
     public AdapterInstalledApps.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
-        View v= LayoutInflater.from(context).inflate(R.layout.listitem_new,viewGroup,false);
+        View v = LayoutInflater.from(context).inflate(R.layout.listitem, viewGroup, false);
 
         return new ViewHolder(v);
     }
