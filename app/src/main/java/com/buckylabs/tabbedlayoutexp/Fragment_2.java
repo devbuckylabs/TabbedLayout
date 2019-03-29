@@ -21,8 +21,12 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -46,7 +50,7 @@ import static android.widget.GridLayout.VERTICAL;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Fragment_2 extends Fragment {
+public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListener {
 
     private RecyclerView recyclerViewRestore;
     private List<Apk> apks;
@@ -75,7 +79,8 @@ public class Fragment_2 extends Fragment {
         isChecked = false;
         //isAllChecked = true;
         apks = new ArrayList<>();
-
+        archivedApks = new ArrayList<>();
+        installedapks = new ArrayList<>();
         handler = new Handler(getMainLooper());
         restore = v.findViewById(R.id.restore);
         rootPath = Environment.getExternalStorageDirectory()
@@ -88,22 +93,14 @@ public class Fragment_2 extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        recyclerViewRestore.hasFixedSize();
-        recyclerViewRestore.setLayoutManager(new LinearLayoutManager(getContext()));
-        DividerItemDecoration itemDecor = new DividerItemDecoration(getActivity(), HORIZONTAL);
-        itemDecor.setOrientation(VERTICAL);
-        recyclerViewRestore.addItemDecoration(itemDecor);
-        archivedApks =new ArrayList<>();
-        installedapks=new ArrayList<>();
-        adapter = new AdapterRestoredApps(getActivity(), apks);
-        recyclerViewRestore.setAdapter(adapter);
-      //  populateRecyclerview();
+        initRecyclerView();
+        setHasOptionsMenu(true);
 
         restore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                    InstallApplication();
+                InstallApplication();
 
 
             }
@@ -123,7 +120,7 @@ public class Fragment_2 extends Fragment {
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-       super.onActivityCreated(savedInstanceState);
+        super.onActivityCreated(savedInstanceState);
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -132,6 +129,42 @@ public class Fragment_2 extends Fragment {
         }, 30);
 
     }
+
+    @Override
+    public boolean onQueryTextSubmit(String s) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String s) {
+        String input = s.toLowerCase();
+        List<Apk> list = new ArrayList<>();
+
+        for (Apk apk : apks) {
+
+            if (apk.getAppName().toLowerCase().contains(input)) {
+
+                list.add(apk);
+
+            }
+
+            adapter.updateList(list);
+        }
+
+        return true;
+    }
+
+    public void initRecyclerView() {
+        recyclerViewRestore.hasFixedSize();
+        recyclerViewRestore.setLayoutManager(new LinearLayoutManager(getContext()));
+        DividerItemDecoration itemDecor = new DividerItemDecoration(getActivity(), HORIZONTAL);
+        itemDecor.setOrientation(VERTICAL);
+        recyclerViewRestore.addItemDecoration(itemDecor);
+        adapter = new AdapterRestoredApps(getActivity(), apks);
+        recyclerViewRestore.setAdapter(adapter);
+
+    }
+
 
     public List<Apk> getArchivedApps() {
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup_Pro";
@@ -147,14 +180,13 @@ public class Fragment_2 extends Fragment {
             } catch (PackageManager.NameNotFoundException e) {
 
                 info = null;
-                packinfo.applicationInfo.sourceDir=file.getAbsolutePath();
-                packinfo.applicationInfo.publicSourceDir=file.getAbsolutePath();
+                packinfo.applicationInfo.sourceDir = file.getAbsolutePath();
+                packinfo.applicationInfo.publicSourceDir = file.getAbsolutePath();
 
             }
 
-                packinfo.applicationInfo.sourceDir=file.getAbsolutePath();
-                packinfo.applicationInfo.publicSourceDir=file.getAbsolutePath();
-
+            packinfo.applicationInfo.sourceDir = file.getAbsolutePath();
+            packinfo.applicationInfo.publicSourceDir = file.getAbsolutePath();
 
 
             Apk apk = getApk(packinfo);
@@ -163,55 +195,50 @@ public class Fragment_2 extends Fragment {
 
         }
 
-      return archivedApks;
+        return archivedApks;
 
     }
 
 
-
-
-public void populateRecyclerview() {
+    public void populateRecyclerview() {
 
         archivedApks.clear();
         apks.clear();
 
 
-    List<Apk> installedApks = new ArrayList<>();
-    try {
-        installedApks = getInstalledApks(false);
-    } catch (PackageManager.NameNotFoundException e) {
-        e.printStackTrace();
-    }
-    List<Apk> archivedApks = getArchivedApps();
+        List<Apk> installedApks = new ArrayList<>();
+        try {
+            installedApks = getInstalledApks(false);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        List<Apk> archivedApks = getArchivedApps();
 
 
-    for (Apk apk1 : archivedApks) {
+        for (Apk apk1 : archivedApks) {
 
-        for (Apk apk2 : installedApks) {
+            for (Apk apk2 : installedApks) {
 
-            if (apk1.getAppName().equals(apk2.getAppName())) {
+                if (apk1.getAppName().equals(apk2.getAppName())) {
 
-                apk1.setAppStatus("Installed");
+                    apk1.setAppStatus("Installed");
 
+                }
             }
+
+            apks.add(apk1);
+
         }
 
-        apks.add(apk1);
+        Collections.sort(apks, new Comparator<Apk>() {
+            @Override
+            public int compare(final Apk object1, final Apk object2) {
+                return object1.getAppName().compareTo(object2.getAppName());
+            }
+        });
 
+        refresh();
     }
-
-    Collections.sort(apks, new Comparator<Apk>() {
-        @Override
-        public int compare(final Apk object1, final Apk object2) {
-            return object1.getAppName().compareTo(object2.getAppName());
-        }
-    });
-
-    refresh();
-}
-
-
-
 
 
     public List<Apk> getInstalledApks(boolean isSys) throws PackageManager.NameNotFoundException {
@@ -228,7 +255,6 @@ public void populateRecyclerview() {
             if (isSys) {
 
 
-
                 Apk apk = getApk(packageInfo);
                 apks.add(apk);
 
@@ -239,9 +265,7 @@ public void populateRecyclerview() {
                 } else {
 
 
-
                     Apk apk = getApk(packageInfo);
-
 
 
                     installedapks.add(apk);
@@ -249,14 +273,13 @@ public void populateRecyclerview() {
                 }
 
 
-
             }
         }
 
-        if(installedapks.size()<=0)
-        return new ArrayList<>();
+        if (installedapks.size() <= 0)
+            return new ArrayList<>();
 
-return installedapks;
+        return installedapks;
     }
 
     public Apk getApk(PackageInfo packinfo) {
@@ -280,17 +303,23 @@ return installedapks;
     }
 
 
-
-
     public void InstallApplication() {
 
         refresh();
         for (Apk apk : apks) {
 
             if (apk.isChecked()) {
-                File file = new File(rootPath, apk.getAppName() + ".apk");
 
-                if(Build.VERSION.SDK_INT>=24) {
+                StringBuilder Appname = new StringBuilder();
+                Appname.append(apk.getAppName());
+                Appname.append("-");
+                Appname.append(apk.getAppPackage());
+                Appname.append("-");
+                Appname.append(apk.getAppVersionName());
+
+                File file = new File(rootPath, Appname + ".apk");
+
+                if (Build.VERSION.SDK_INT >= 24) {
 
                     Uri path = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
                     Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(path,
@@ -299,9 +328,9 @@ return installedapks;
                     intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivity(intent);
-                }else{
+                } else {
 
-                    Uri uri=Uri.fromFile(file);
+                    Uri uri = Uri.fromFile(file);
                     Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uri,
                             "application/vnd.android.package-archive");
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -372,5 +401,19 @@ return installedapks;
         adapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
+        inflater.inflate(R.menu.menu_main, menu);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(this);
+        searchView.setQueryHint("Search");
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
 }

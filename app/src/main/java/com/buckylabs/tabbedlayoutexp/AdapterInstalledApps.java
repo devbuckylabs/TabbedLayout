@@ -55,6 +55,14 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
         return apks.size();
     }
 
+    public void updateList(List<Apk> list) {
+
+        apks = new ArrayList<>();
+        apks.addAll(list);
+        notifyDataSetChanged();
+
+    }
+
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 

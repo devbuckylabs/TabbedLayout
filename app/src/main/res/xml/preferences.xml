@@ -22,5 +22,8 @@
     <CheckBoxPreference
         android:key="auto_backup"
         android:title="Enable Auto Backup" />
+    <Preference
+        android:key="storage_path"
+        android:title="Backup Path" />
 
 </PreferenceScreen>

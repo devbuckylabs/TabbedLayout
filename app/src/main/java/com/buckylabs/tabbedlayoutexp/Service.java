@@ -118,13 +118,19 @@ public class Service extends BroadcastReceiver {
         try {
             File f1 = new File(apk.getSourceDirectory());
 
-            String file_name = apk.getAppName();
+            StringBuilder Appname = new StringBuilder();
+            Appname.append(apk.getAppName());
+            Appname.append("-");
+            Appname.append(apk.getAppPackage());
+            Appname.append("-");
+            Appname.append(apk.getAppVersionName());
+
             File f2 = new File(rootPath);
             if (!f2.exists()) {
                 f2.mkdirs();
             }
 
-            f2 = new File(rootPath + "/" + file_name + ".apk");
+            f2 = new File(rootPath + "/" + Appname + ".apk");
             f2.createNewFile();
             InputStream in = new FileInputStream(f1);
             FileOutputStream out = new FileOutputStream(f2);
@@ -133,7 +139,7 @@ public class Service extends BroadcastReceiver {
             while ((len = in.read(buf)) > 0) {
                 out.write(buf, 0, len);
             }
-            Log.e("BackUp Complete ", file_name);
+            Log.e("BackUp Complete ", Appname.toString());
             out.flush();
             out.close();
         } catch (Exception e) {

@@ -10,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdapterRestoredApps  extends RecyclerView.Adapter<AdapterRestoredApps.ViewHolder>{
@@ -53,6 +54,14 @@ public class AdapterRestoredApps  extends RecyclerView.Adapter<AdapterRestoredAp
             return 0;
         }
         return apks.size();
+    }
+
+    public void updateList(List<Apk> list) {
+
+        apks = new ArrayList<>();
+        apks.addAll(list);
+        notifyDataSetChanged();
+
     }
 
 

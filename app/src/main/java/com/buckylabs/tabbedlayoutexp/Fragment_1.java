@@ -29,8 +29,12 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -66,7 +70,7 @@ import static android.widget.GridLayout.VERTICAL;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Fragment_1 extends Fragment {
+public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListener {
 
     private RecyclerView recyclerView;
     private List<Apk> apks;
@@ -120,23 +124,13 @@ public class Fragment_1 extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        recyclerView.hasFixedSize();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        DividerItemDecoration itemDecor = new DividerItemDecoration(getActivity(), HORIZONTAL);
-        itemDecor.setOrientation(VERTICAL);
-        recyclerView.addItemDecoration(itemDecor);
-
-        adapter = new AdapterInstalledApps(getActivity(), apks);
-        recyclerView.setAdapter(adapter);
-
+        initRecyclerView();
         createDirectory();
-        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        isSys = preferences.getBoolean("show_sys_apps", false);
-        isOverride = preferences.getBoolean("override", false);
-        isAutoBackup = preferences.getBoolean("auto_backup", false);
-
-
+        getPreferences();
+        setHasOptionsMenu(true);
     }
+
+
 
 
     @Override
@@ -161,6 +155,50 @@ public class Fragment_1 extends Fragment {
         refresh();
     }
 
+
+    @Override
+    public boolean onQueryTextSubmit(String s) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String s) {
+        String input = s.toLowerCase();
+        List<Apk> list = new ArrayList<>();
+
+        for (Apk apk : apks) {
+
+            if (apk.getAppName().toLowerCase().contains(input)) {
+
+                list.add(apk);
+
+            }
+
+            adapter.updateList(list);
+        }
+
+        return true;
+    }
+
+
+    public void initRecyclerView() {
+        recyclerView.hasFixedSize();
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        DividerItemDecoration itemDecor = new DividerItemDecoration(getActivity(), HORIZONTAL);
+        itemDecor.setOrientation(VERTICAL);
+        recyclerView.addItemDecoration(itemDecor);
+        adapter = new AdapterInstalledApps(getActivity(), apks);
+        recyclerView.setAdapter(adapter);
+
+    }
+
+
+    public void getPreferences() {
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        isSys = preferences.getBoolean("show_sys_apps", false);
+        isOverride = preferences.getBoolean("override", false);
+        isAutoBackup = preferences.getBoolean("auto_backup", false);
+    }
 
     public List<Apk> getApks(boolean isSys) throws PackageManager.NameNotFoundException {
 
@@ -298,6 +336,27 @@ public class Fragment_1 extends Fragment {
         }
         return "";
     }
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        inflater.inflate(R.menu.menu_main, menu);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(this);
+        searchView.setQueryHint("Search");
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
+
 
 
     public void backupHelperInit() {

@@ -3,6 +3,8 @@ package com.buckylabs.tabbedlayoutexp;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Environment;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -70,6 +72,9 @@ public class SettingsActivityNew extends PreferenceActivity {
 
             PreferenceManager.setDefaultValues(getActivity(), R.xml.preferences, false);
             addPreferencesFromResource(R.xml.preferences);
+            String path = Environment.getExternalStorageDirectory() + "/App_Backup_Pro/";
+            Preference etp = findPreference("storage_path");
+            etp.setSummary(path);
         }
     }
 }
