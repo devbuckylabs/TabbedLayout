@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="example_switch"
-        android:summary="Premium Feature"
-        android:textColor="@color/white"
-        android:title="Enable Dark Theme">
+    <PreferenceCategory android:title="General">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="example_switch"
+            android:summary="Theme"
+            android:textColor="@color/white"
+            android:title="Enable Dark Theme" />
+        <CheckBoxPreference
+            android:key="show_sys_apps"
+            android:title="Show System Apps" />
+    </PreferenceCategory>
 
-    </SwitchPreference>
 
+    <PreferenceCategory android:title="Backup Settings">
+        <Preference
+            android:key="storage_path"
+            android:title="Backup Path" />
+        <CheckBoxPreference
+            android:key="override"
+            android:title="Override old version " />
 
-    <CheckBoxPreference
-        android:key="show_sys_apps"
-        android:title="Show System Apps" />
+    </PreferenceCategory>
 
-    <CheckBoxPreference
-        android:key="override"
-        android:title="Override old version " />
-
-    <CheckBoxPreference
-        android:key="auto_backup"
-        android:title="Enable Auto Backup" />
-    <Preference
-        android:key="storage_path"
-        android:title="Backup Path" />
+    <PreferenceCategory android:title="Auto BackUp">
+        <CheckBoxPreference
+            android:key="auto_backup"
+            android:title="Enable Auto Backup" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

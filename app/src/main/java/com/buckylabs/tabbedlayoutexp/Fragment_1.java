@@ -135,7 +135,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     }
 
 
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -149,7 +148,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         }, 30);
 
     }
-
 
 
     @Override
@@ -377,10 +375,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     }
 
 
-
-
-
-
     public void backupHelperInit() {
 
         List<Apk> listApk = new ArrayList<>();
@@ -506,27 +500,32 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         protected void onPreExecute() {
             super.onPreExecute();
             progressDialog = new ProgressDialog(context);
-            progressDialog.setTitle("Baacking Up Apps");
+            progressDialog.setTitle("Backing Up Apps");
             progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.setMax(100);
-            // progressDialog.setIndeterminate(true);
+            //progressDialog.setMax(100);
+
+            //progressDialog.setIndeterminate(true);
             progressDialog.setMessage("hey");
             progressDialog.show();
         }
 
         @Override
         protected String doInBackground(Apk... listApks) {
-            //progressDialog.setMax(listApks.length);
+            progressDialog.setMax(listApks.length);
             int k = 1;
             int i = 1;
             for (final Apk apk : listApks) {
                 {
-
+                    progressDialog.setProgress(0);
                     if (apk.isChecked()) {
-                        // progressDialog.setProgress(0);
-                        progressDialog.setMessage(apk.getAppName() + "  " + (i) + "/" + listApks.length);
 
+                        progressDialog.setMessage(apk.getAppName() + "  " + (i) + "/" + listApks.length);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         StringBuilder Appname = new StringBuilder();
                         Appname.append(apk.getAppName());
                         Appname.append("-");
@@ -580,9 +579,8 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                             e.printStackTrace();
                         }
 
-
                         updateStatus(apk);
-                        //k += (int) (100 / (listApks.length));
+
                         k++;
                         publishProgress(k);
                         i++;
