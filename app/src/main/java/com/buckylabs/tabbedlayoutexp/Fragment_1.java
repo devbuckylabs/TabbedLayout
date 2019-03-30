@@ -38,6 +38,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.Toast;
@@ -82,6 +84,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     private boolean isOverride;
     private boolean isAutoBackup;
     private AdapterInstalledApps adapter;
+    CheckBox checkBox_selectAll;
     private boolean isAllChecked;
     SharedPreferences preferences;
 
@@ -128,8 +131,8 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         createDirectory();
         getPreferences();
         setHasOptionsMenu(true);
-    }
 
+    }
 
 
 
@@ -345,7 +348,26 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         MenuItem searchItem = menu.findItem(R.id.search);
         SearchView searchView = (SearchView) searchItem.getActionView();
         searchView.setOnQueryTextListener(this);
-        searchView.setQueryHint("Search");
+        searchView.setQueryHint("Search...");
+
+        MenuItem selectAll = menu.findItem(R.id.select_all);
+        checkBox_selectAll = (CheckBox) selectAll.getActionView();
+        checkBox_selectAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                if (isChecked) {
+                    checkAllBoxes();
+                } else {
+                    uncheckAllBoxes();
+
+
+                }
+
+
+            }
+        });
+
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -560,7 +582,8 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
 
                         updateStatus(apk);
-                        k += (int) (100 / (listApks.length));
+                        //k += (int) (100 / (listApks.length));
+                        k++;
                         publishProgress(k);
                         i++;
                         // progressDialog.setProgress(0);
@@ -592,6 +615,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
             progressDialog.dismiss();
             progressDialog.cancel();
             uncheckAllBoxes();
+            checkBox_selectAll.setChecked(false);
             Toasty.success(getContext(), "Archived", Toast.LENGTH_SHORT, true).show();
             refresh();
 

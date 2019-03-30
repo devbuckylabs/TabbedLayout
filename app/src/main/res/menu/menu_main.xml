@@ -22,7 +22,7 @@
         android:checkable="true"
         app:actionViewClass="android.widget.CheckBox"
         android:checked="false"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
 
 </menu>
