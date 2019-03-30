@@ -15,6 +15,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.mancj.materialsearchbar.MaterialSearchBar;
@@ -30,7 +32,9 @@ public class MainActivity extends AppCompatActivity {
     private PageAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private TabLayout tabLayout;
-    private Button button;
+    private Button backup_Btn;
+    private ImageButton refresh_Btn;
+    private ImageButton share_Btn;
     SharedPreferences preferences;
 
     @Override
@@ -68,7 +72,9 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
 
-        button=findViewById(R.id.button);
+        backup_Btn = findViewById(R.id.backup_Btn);
+        refresh_Btn = findViewById(R.id.refresh);
+        share_Btn = findViewById(R.id.share);
 
 
         Service br = new Service();
@@ -78,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addDataScheme("package");
         registerReceiver(br, intentFilter);
 
-        button.setOnClickListener(new View.OnClickListener() {
+        backup_Btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -101,17 +107,67 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+
+        refresh_Btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (tabLayout.getSelectedTabPosition() == 0) {
+
+                    TabLayout.Tab tab = tabLayout.getTabAt(0);
+
+                    ((Fragment_1) mSectionsPagerAdapter.getItem(0)).populateRecyclerview();
+
+
+                } else {
+
+
+                    ((Fragment_2) mSectionsPagerAdapter.getItem(1)).populateRecyclerview();
+
+
+                }
+            }
+
+
+        });
+
+
+        share_Btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                if (tabLayout.getSelectedTabPosition() == 0) {
+
+                    TabLayout.Tab tab = tabLayout.getTabAt(0);
+
+                    ((Fragment_1) mSectionsPagerAdapter.getItem(0)).shareApks();
+
+
+                } else {
+
+
+                    ((Fragment_2) mSectionsPagerAdapter.getItem(1)).shareApks();
+
+
+                }
+            }
+
+
+        });
+
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
 
                 if(tabLayout.getSelectedTabPosition()==0){
 
-                    button.setText("BACKUP");
+                    backup_Btn.setText("BACKUP");
 
                 }else {
 
-                    button.setText("RESTORE");
+                    backup_Btn.setText("RESTORE");
 
 
                 }
@@ -166,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
+        // automatically handle clicks on the Home/Up backup_Btn, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 

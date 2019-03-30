@@ -11,11 +11,13 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -65,6 +67,7 @@ import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 
+import static android.app.Activity.RESULT_OK;
 import static android.os.Looper.getMainLooper;
 import static android.widget.GridLayout.HORIZONTAL;
 import static android.widget.GridLayout.VERTICAL;
@@ -242,6 +245,9 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
     public void populateRecyclerview() {
 
+        installedApks.clear();
+        archivedApks.clear();
+        uncheckAllBoxes();
         try {
             getApks(isSys);
         } catch (PackageManager.NameNotFoundException e) {
@@ -263,6 +269,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
             apks.add(apk1);
 
         }
+
         refresh();
 
     }
@@ -288,6 +295,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     }
 
     public Apk getApk(PackageInfo packinfo) {
+
 
         String AppName = (String) packinfo.applicationInfo.loadLabel(pm);
         Drawable AppIcon = packinfo.applicationInfo.loadIcon(pm);
@@ -483,6 +491,43 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     public void refresh() {
         adapter.notifyDataSetChanged();
     }
+
+    public void shareApks() {
+        List<Uri> shareApks = new ArrayList<>();
+        //File file = new File("");
+        refresh();
+        for (Apk apk : apks) {
+            if (apk.isChecked()) {
+                File file = new File(apk.getSourceDirectory());
+
+                Uri uri = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
+                shareApks.add(uri);
+
+
+            }
+        }
+
+        if (shareApks.isEmpty()) {
+            Toast.makeText(getContext(), "Select a app to share ", Toast.LENGTH_SHORT).show();
+        } else {
+
+
+            uncheckAllBoxes();
+
+            Log.e("SHAREAPKS", shareApks.size() + "");
+            Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+            shareIntent.setType("*/*");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "AppBackupPro");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "great");
+            shareIntent.putExtra(Intent.EXTRA_EMAIL, "Checkout my app");
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, (ArrayList<? extends Parcelable>) shareApks);
+            startActivity(Intent.createChooser(shareIntent, "Share app via"));
+
+
+        }
+    }
+
 
 
     class BackupHelper extends AsyncTask<Apk, Integer, String> {

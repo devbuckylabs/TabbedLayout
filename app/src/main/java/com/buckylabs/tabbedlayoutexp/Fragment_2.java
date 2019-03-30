@@ -13,6 +13,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.AppLaunchChecker;
@@ -207,8 +209,7 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
 
         archivedApks.clear();
         apks.clear();
-
-
+        uncheckAllBoxes();
         List<Apk> installedApks = new ArrayList<>();
         try {
             installedApks = getInstalledApks(false);
@@ -240,7 +241,9 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
             }
         });
 
+
         refresh();
+
     }
 
 
@@ -403,6 +406,41 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
         adapter.notifyDataSetChanged();
     }
 
+    public void shareApks() {
+
+        List<Uri> shareApks = new ArrayList<>();
+        //File file = new File("");
+        refresh();
+        for (Apk apk : apks) {
+            if (apk.isChecked()) {
+                File file = new File(apk.getSourceDirectory());
+
+                Uri uri = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
+                shareApks.add(uri);
+
+
+            }
+        }
+
+        if (shareApks.isEmpty()) {
+            Toast.makeText(getContext(), "Select a app to share ", Toast.LENGTH_SHORT).show();
+        } else {
+            uncheckAllBoxes();
+
+            Log.e("SHAREAPKS", shareApks.size() + "");
+            //Uri path = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
+            Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+            shareIntent.setType("*/*");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "AppBackupPro");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "great");
+            shareIntent.putExtra(Intent.EXTRA_EMAIL, "Checkout my app");
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, (ArrayList<? extends Parcelable>) shareApks);
+            startActivity(Intent.createChooser(shareIntent, "Share app via"));
+
+
+        }
+    }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
@@ -437,4 +475,5 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
+
 }
