@@ -1,14 +1,19 @@
 package com.buckylabs.tabbedlayoutexp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +37,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
 
         return new ViewHolder(v);
     }
+
 
     @Override
     public void onBindViewHolder(@NonNull AdapterInstalledApps.ViewHolder viewHolder, int i) {
@@ -64,7 +70,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
     }
 
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, View.OnCreateContextMenuListener {
 
         TextView appName;
         TextView appStatus;
@@ -82,6 +88,9 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
             checkBox = itemView.findViewById(R.id.checkbox);
             appStatus= itemView.findViewById(R.id.appStatus);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
+            itemView.setOnCreateContextMenuListener(this);
+
         }
 
 
@@ -105,5 +114,22 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
         }
 
 
+        @Override
+        public boolean onLongClick(View v) {
+            Toast.makeText(context, "Hola", Toast.LENGTH_SHORT).show();
+            Log.e("Hola", "" + apks.get(getAdapterPosition()));
+            ((Activity) context).openContextMenu(v);
+            return true;
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+
+            ((Activity) context).getMenuInflater().inflate(R.menu.popup_menu, menu);
+
+        }
     }
+
+
+
 }

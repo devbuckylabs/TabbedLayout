@@ -33,6 +33,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -133,10 +134,33 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         initRecyclerView();
         createDirectory();
         getPreferences();
-        setHasOptionsMenu(true);
+        registerForContextMenu(recyclerView);
 
+        setHasOptionsMenu(true);
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+
+            case R.id.backup:
+                Toast.makeText(getContext(), "Backup", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.uninstall:
+                Toast.makeText(getContext(), "Uninstall", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+
+
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -356,6 +380,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         searchView.setOnQueryTextListener(this);
         searchView.setQueryHint("Search...");
 
+
         MenuItem selectAll = menu.findItem(R.id.select_all);
         checkBox_selectAll = (CheckBox) selectAll.getActionView();
         checkBox_selectAll.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -527,7 +552,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
         }
     }
-
 
 
     class BackupHelper extends AsyncTask<Apk, Integer, String> {
