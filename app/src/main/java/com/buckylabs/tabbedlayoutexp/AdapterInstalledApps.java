@@ -3,15 +3,19 @@ package com.buckylabs.tabbedlayoutexp;
 import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,7 +74,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
     }
 
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, View.OnCreateContextMenuListener {
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, View.OnCreateContextMenuListener, android.support.v7.widget.PopupMenu.OnMenuItemClickListener {
 
         TextView appName;
         TextView appStatus;
@@ -90,6 +94,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
             itemView.setOnCreateContextMenuListener(this);
+
 
         }
 
@@ -118,6 +123,12 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
         public boolean onLongClick(View v) {
             Toast.makeText(context, "Hola", Toast.LENGTH_SHORT).show();
             Log.e("Hola", "" + apks.get(getAdapterPosition()));
+           /* PopupMenu popupMenu=new PopupMenu(context,itemView);
+            popupMenu.inflate(R.menu.popup_menu);
+            popupMenu.setOnMenuItemClickListener(this);
+            popupMenu.setGravity(Gravity.RIGHT);
+            popupMenu.show();
+*/
             ((Activity) context).openContextMenu(v);
             return true;
         }
@@ -125,7 +136,35 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
         @Override
         public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
 
-            ((Activity) context).getMenuInflater().inflate(R.menu.popup_menu, menu);
+            // ((Activity) context).getMenuInflater().inflate(R.menu.popup_menu, menu);
+            menu.setHeaderTitle("Context Menu");
+
+            menu.add(this.getAdapterPosition(), (int) getItemId(), 0, "Backup");
+            menu.add(this.getAdapterPosition(), (int) getItemId(), 1, "Uninstall");
+            menu.add(this.getAdapterPosition(), (int) getItemId(), 0, "Backup");
+            menu.add(this.getAdapterPosition(), (int) getItemId(), 1, "Uninstall");
+            menu.add(this.getAdapterPosition(), (int) getItemId(), 0, "Backup");
+            menu.add(this.getAdapterPosition(), (int) getItemId(), 1, "Uninstall");
+
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem menuItem) {
+
+            switch (menuItem.getItemId()) {
+
+                case R.id.backup:
+                    Toast.makeText(context, "Backup", Toast.LENGTH_SHORT).show();
+                    return true;
+                case R.id.uninstall:
+                    Toast.makeText(context, "Uninstall", Toast.LENGTH_SHORT).show();
+                    return true;
+                default:
+                    return false;
+            }
+
+
+
 
         }
     }

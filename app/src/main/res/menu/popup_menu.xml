@@ -8,4 +8,17 @@
         android:id="@+id/uninstall"
         android:title="Uninstall" />
 
+    <item
+        android:id="@+id/bckup"
+        android:title="Backup" />
+    <item
+        android:id="@+id/unnstall"
+        android:title="Uninstall" />
+    <item
+        android:id="@+id/bcup"
+        android:title="Backup" />
+    <item
+        android:id="@+id/unnstll"
+        android:title="Uninstall" />
+
 </menu>
