@@ -114,17 +114,17 @@ public class MainActivity extends AppCompatActivity {
 
                 if (tabLayout.getSelectedTabPosition() == 0) {
 
-                    TabLayout.Tab tab = tabLayout.getTabAt(0);
+                    //  TabLayout.Tab tab = tabLayout.getTabAt(0);
 
                     ((Fragment_1) mSectionsPagerAdapter.getItem(0)).populateRecyclerview();
-
+                    Toast.makeText(MainActivity.this, "Refreshed", Toast.LENGTH_SHORT).show();
 
                 } else {
 
 
                     ((Fragment_2) mSectionsPagerAdapter.getItem(1)).populateRecyclerview();
 
-
+                    Toast.makeText(MainActivity.this, "Refreshed", Toast.LENGTH_SHORT).show();
                 }
             }
 

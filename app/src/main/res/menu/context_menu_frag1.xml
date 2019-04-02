@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/backup"
+        android:title="Backup" />
+    <item
+        android:id="@+id/launch"
+        android:title="Launch" />
+
+    <item
+        android:id="@+id/uninstall"
+        android:title="Uninstall" />
+    <item
+        android:id="@+id/app_info"
+        android:title="App Info" />
+    <item
+        android:id="@+id/share_market_link"
+        android:title="Share Market Link" />
+    <item
+        android:id="@+id/open_in_google_play"
+        android:title="Open in Google Play" />
+
+
+</menu>

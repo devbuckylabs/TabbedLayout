@@ -144,7 +144,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         super.onCreateContextMenu(menu, v, menuInfo);
     }
 
-    @Override
+  /*  @Override
     public boolean onContextItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
@@ -153,14 +153,16 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                 Toast.makeText(getContext(), "Backup", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.uninstall:
+
                 Toast.makeText(getContext(), "Uninstall", Toast.LENGTH_SHORT).show();
+
                 return true;
             default:
                 return super.onContextItemSelected(item);
         }
 
 
-    }
+    }*/
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -271,9 +273,10 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
         installedApks.clear();
         archivedApks.clear();
+        apks.clear();
         uncheckAllBoxes();
         try {
-            getApks(isSys);
+            installedApks = getApks(isSys);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -400,11 +403,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         });
 
         super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return super.onOptionsItemSelected(item);
     }
 
 

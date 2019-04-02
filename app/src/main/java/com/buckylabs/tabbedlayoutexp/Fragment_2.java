@@ -25,6 +25,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -99,8 +100,8 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
         super.onViewCreated(view, savedInstanceState);
 
         initRecyclerView();
+        registerForContextMenu(recyclerViewRestore);
         setHasOptionsMenu(true);
-
         restore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -159,6 +160,13 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
         return true;
     }
 
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+    }
+
     public void initRecyclerView() {
         recyclerViewRestore.hasFixedSize();
         recyclerViewRestore.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -208,6 +216,7 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
     public void populateRecyclerview() {
 
         archivedApks.clear();
+        installedapks.clear();
         apks.clear();
         uncheckAllBoxes();
         List<Apk> installedApks = new ArrayList<>();
@@ -223,7 +232,7 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
 
             for (Apk apk2 : installedApks) {
 
-                if (apk1.getAppName().equals(apk2.getAppName())) {
+                if (apk1.getAppName().equals(apk2.getAppName()) && apk1.getAppVersionName().equals(apk2.getAppVersionName())) {
 
                     apk1.setAppStatus("Installed");
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/install"
+        android:title="Install" />
+
+    <item
+        android:id="@+id/app_info"
+        android:title="App info" />
+    <item
+        android:id="@+id/delete"
+        android:title="Delete" />
+    <item
+        android:id="@+id/send"
+        android:title="Send" />
+    <item
+        android:id="@+id/share_marketlink"
+        android:title="Share market link" />
+    <item
+        android:id="@+id/open_in_googleplay"
+        android:title="Open in Google Play" />
+
+</menu>
