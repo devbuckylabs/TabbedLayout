@@ -1,5 +1,8 @@
 package com.buckylabs.tabbedlayoutexp;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -7,8 +10,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -19,7 +25,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import es.dmoral.toasty.Toasty;
+
 
 public class Service extends BroadcastReceiver {
     String rootPath = Environment.getExternalStorageDirectory()
@@ -28,12 +34,29 @@ public class Service extends BroadcastReceiver {
     boolean isAutoBackup;
     SharedPreferences preferences;
 
+    private static final String CHANNEL_ID = "Auto_Backup";
+    private static final String CHANNEL_NAME = "Spooks";
+    private static final String CHANNEL_DESC = "Adios";
+
+    private static final int NOTIFICATION_ID = 404;
+    Context context;
+
     @Override
     public void onReceive(Context context, Intent intent) {
-
+        this.context = context;
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         isAutoBackup = preferences.getBoolean("auto_backup", false);
         pm = context.getPackageManager();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription(CHANNEL_DESC);
+
+            NotificationManager manager = context.getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+
+        }
 
         String packageName = intent.getData().getEncodedSchemeSpecificPart();
         PackageInfo packageInfo;
@@ -52,12 +75,38 @@ public class Service extends BroadcastReceiver {
 
         if (isAutoBackup) {
             if (apk != null) {
-                writeData(apk);
+                Boolean isBackup = writeData(apk);
                 Toast.makeText(context, "Auto Backup Completed", Toast.LENGTH_SHORT).show();
                 Log.e("%%%Service", "Auto Backup Completed");
+                if (isBackup) {
+                    displayNotification(Appname);
+                }
             }
 
         }
+
+
+    }
+
+    public void displayNotification(String appname) {
+
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID);
+        builder.setSmallIcon(R.drawable.ic_notifications_black_24dp);
+        builder.setContentTitle("Auto Backup Agent");
+        builder.setContentText("New App : " + appname.toUpperCase() + "  successfully archived");
+        builder.setAutoCancel(true);
+
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+
+        builder.setContentIntent(pendingIntent);
+        builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+        notificationManagerCompat.notify(NOTIFICATION_ID, builder.build());
 
 
     }
@@ -113,7 +162,7 @@ public class Service extends BroadcastReceiver {
     }
 
 
-    public void writeData(Apk apk) {
+    public boolean writeData(Apk apk) {
 
         try {
             File f1 = new File(apk.getSourceDirectory());
@@ -131,24 +180,32 @@ public class Service extends BroadcastReceiver {
             }
 
             f2 = new File(rootPath + "/" + Appname + ".apk");
-            f2.createNewFile();
-            InputStream in = new FileInputStream(f1);
-            FileOutputStream out = new FileOutputStream(f2);
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
+            if (!f2.exists()) {
+
+                f2.createNewFile();
+                InputStream in = new FileInputStream(f1);
+                FileOutputStream out = new FileOutputStream(f2);
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                Log.e("BackUp Complete ", Appname.toString());
+                out.flush();
+                out.close();
+                return true;
+            } else {
+                Toast.makeText(context, "Already Backed Up", Toast.LENGTH_SHORT).show();
+                Log.e("%%%Service", "Already Backed Up");
             }
-            Log.e("BackUp Complete ", Appname.toString());
-            out.flush();
-            out.close();
         } catch (Exception e) {
 
             Log.e("Exception", "********************************************* ");
             e.printStackTrace();
         }
-
+        return false;
 
     }
+
 
 }
