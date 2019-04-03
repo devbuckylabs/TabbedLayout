@@ -33,9 +33,11 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
 
+        <!-- <item name="android:itemBackground">@color/black_light</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@color/black_light</item> -->
 
     </style>
-
 
 
     <style name="PreferencesDarkTheme">

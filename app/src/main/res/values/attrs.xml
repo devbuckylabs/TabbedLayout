@@ -3,13 +3,13 @@
 
     <declare-styleable name="a">
 
-        <attr name="background_color" format="color"></attr>
-        <attr name="text_color" format="color"></attr>
-        <attr name="text_status_color" format="color"></attr>
-        <attr name="button_color" format="color"></attr>
-        <attr name="button_text_color" format="color"></attr>
-        <attr name="checkbox_tintcolor" format="color"></attr>
-        <attr name="actionBar" format="color"></attr>
+        <attr name="background_color" format="color" />
+        <attr name="text_color" format="color" />
+        <attr name="text_status_color" format="color" />
+        <attr name="button_color" format="color" />
+        <attr name="button_text_color" format="color" />
+        <attr name="checkbox_tintcolor" format="color" />
+        <attr name="actionBar" format="color" />
 
     </declare-styleable>
 </resources>

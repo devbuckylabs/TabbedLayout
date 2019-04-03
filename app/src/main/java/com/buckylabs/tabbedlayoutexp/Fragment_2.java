@@ -65,7 +65,6 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
     List<Apk> archivedApks;
     private Handler handler;
     SharedPreferences preferences;
-    Button restore;
     String rootPath;
     List<Apk> installedapks;
     CheckBox checkBox_selectAll;
@@ -88,7 +87,7 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
         archivedApks = new ArrayList<>();
         installedapks = new ArrayList<>();
         handler = new Handler(getMainLooper());
-        restore = v.findViewById(R.id.restore);
+
         rootPath = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/App_Backup_Pro/";
         return v;
@@ -102,15 +101,6 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
         initRecyclerView();
         registerForContextMenu(recyclerViewRestore);
         setHasOptionsMenu(true);
-        restore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                InstallApplication();
-
-
-            }
-        });
 
 
     }

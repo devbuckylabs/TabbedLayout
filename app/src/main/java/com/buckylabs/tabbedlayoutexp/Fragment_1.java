@@ -416,6 +416,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                 listApk.add(apk);
             }
         }
+        //checkBox_selectAll.setChecked(false);
 
         Apk arrayApk[] = new Apk[listApk.size()];
         for (int k = 0; k < listApk.size(); k++) {
@@ -486,6 +487,10 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
     public void uncheckAllBoxes() {
 
+
+        if (checkBox_selectAll.isChecked()) {
+            checkBox_selectAll.setChecked(false);
+        }
         for (Apk apk : apks) {
             apk.setChecked(false);
 
@@ -589,11 +594,11 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                     if (apk.isChecked()) {
 
                         progressDialog.setMessage(apk.getAppName() + "  " + (i) + "/" + listApks.length);
-                        try {
+                        /*try {
                             Thread.sleep(1000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
-                        }
+                        }*/
                         StringBuilder Appname = new StringBuilder();
                         Appname.append(apk.getAppName());
                         Appname.append("-");
@@ -630,17 +635,21 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                             }
 
                             f2 = new File(rootPath + "/" + Appname + ".apk");
-                            f2.createNewFile();
-                            InputStream in = new FileInputStream(f1);
-                            FileOutputStream out = new FileOutputStream(f2);
-                            byte[] buf = new byte[1024];
-                            int len;
-                            while ((len = in.read(buf)) > 0) {
-                                out.write(buf, 0, len);
+
+                            if (!f2.exists()) {
+
+                                f2.createNewFile();
+                                InputStream in = new FileInputStream(f1);
+                                FileOutputStream out = new FileOutputStream(f2);
+                                byte[] buf = new byte[1024];
+                                int len;
+                                while ((len = in.read(buf)) > 0) {
+                                    out.write(buf, 0, len);
+                                }
+                                //   Log.e("BackUp Complete ", file_name);
+                                out.flush();
+                                out.close();
                             }
-                            //   Log.e("BackUp Complete ", file_name);
-                            out.flush();
-                            out.close();
                         } catch (Exception e) {
 
                             // Log.e("Exception", "********************************************* ");

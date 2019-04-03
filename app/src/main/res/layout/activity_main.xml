@@ -24,7 +24,7 @@
             android:background="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:title="@string/app_name"></android.support.v7.widget.Toolbar>
+            app:title="@string/app_name" />
 
 
         <android.support.design.widget.TabLayout
@@ -72,7 +72,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:src="@drawable/ic_refresh_white_24dp"
-            android:background="@color/colorPrimary" />
+            android:background="?attr/button_color" />
 
 
         <Button
@@ -84,7 +84,7 @@
             android:layout_marginEnd="1dp"
             android:layout_gravity="center_horizontal"
             android:background="?attr/button_color"
-            android:text="Backup"
+            android:text="@string/backup_button"
             android:textColor="@android:color/white" />
 
         <ImageButton
@@ -93,7 +93,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:src="@drawable/ic_share_white_24dp"
-            android:background="@color/colorPrimary" />
+            android:background="?attr/button_color" />
     </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

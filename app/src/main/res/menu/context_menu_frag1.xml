@@ -2,23 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/backup"
-        android:title="Backup" />
+        android:title="@string/backup" />
     <item
         android:id="@+id/launch"
-        android:title="Launch" />
+        android:title="@string/launch" />
 
     <item
         android:id="@+id/uninstall"
-        android:title="Uninstall" />
+        android:title="@string/uninstall" />
     <item
         android:id="@+id/app_info"
-        android:title="App Info" />
+        android:title="@string/app_info" />
     <item
         android:id="@+id/share_market_link"
-        android:title="Share Market Link" />
+        android:title="@string/share_market_link" />
     <item
         android:id="@+id/open_in_google_play"
-        android:title="Open in Google Play" />
+        android:title="@string/open_in_google_play" />
 
 
 </menu>
