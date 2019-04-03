@@ -38,6 +38,7 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -46,6 +47,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static android.os.Looper.getMainLooper;
 import static android.widget.GridLayout.HORIZONTAL;
@@ -172,7 +174,12 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
     public List<Apk> getArchivedApps() {
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup_Pro";
         File directory = new File(path);
-        File[] files = directory.listFiles();
+        File[] files = directory.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".apk");
+            }
+        });
         for (File file : files) {
             Log.e("Archive FilesName", "" + file.getName());
             PackageInfo packinfo = pm.getPackageArchiveInfo(path + "/" + file.getName(), 0);
@@ -281,8 +288,6 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
             }
         }
 
-        if (installedapks.size() <= 0)
-            return new ArrayList<>();
 
         return installedapks;
     }
@@ -308,6 +313,18 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
     }
 
 
+    public String appNameGenerator(Apk apk) {
+        StringBuilder Appname = new StringBuilder();
+        Appname.append(apk.getAppName());
+        Appname.append("-");
+        Appname.append(apk.getAppPackage());
+        Appname.append("-");
+        Appname.append(apk.getAppVersionName());
+        Appname.append(".apk");
+
+        return Appname.toString();
+    }
+
     public void InstallApplication() {
 
         refresh();
@@ -315,14 +332,9 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
 
             if (apk.isChecked()) {
 
-                StringBuilder Appname = new StringBuilder();
-                Appname.append(apk.getAppName());
-                Appname.append("-");
-                Appname.append(apk.getAppPackage());
-                Appname.append("-");
-                Appname.append(apk.getAppVersionName());
+                String Appname = appNameGenerator(apk);
 
-                File file = new File(rootPath, Appname + ".apk");
+                File file = new File(rootPath, Appname);
 
                 if (Build.VERSION.SDK_INT >= 24) {
 
@@ -352,11 +364,8 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
     }
 
     public String getAppDate(long milliseconds) {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
         String dateString = formatter.format(new Date(milliseconds));
-        if (dateString == null) {
-            return "";
-        }
 
         return dateString;
     }
@@ -366,14 +375,14 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
         if (sizeInBytes < 1048576) {
             Log.e("Travis", "ingetSize1");
             double sizeInKB = sizeInBytes / 1024;
-            String size = String.format("%.1f", sizeInKB);
+            String size = String.format(Locale.US, "%.1f", sizeInKB);
 
 
             return size + "KB";
         } else if (sizeInBytes < 1073741824) {
             Log.e("Travis", "ingetSize2");
             double sizeInMb = sizeInBytes / 1048576;
-            String size = String.format("%.1f", sizeInMb);
+            String size = String.format(Locale.US, "%.1f", sizeInMb);
             return size + "MB";
 
         }
@@ -408,7 +417,7 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
     public void shareApks() {
 
         List<Uri> shareApks = new ArrayList<>();
-        //File file = new File("");
+
         refresh();
         for (Apk apk : apks) {
             if (apk.isChecked()) {
@@ -427,7 +436,6 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
             uncheckAllBoxes();
 
             Log.e("SHAREAPKS", shareApks.size() + "");
-            //Uri path = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
             Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
             shareIntent.setType("*/*");
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, "AppBackupPro");
@@ -459,7 +467,6 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
                     checkAllBoxes();
                 } else {
                     uncheckAllBoxes();
-
 
                 }
 

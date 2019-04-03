@@ -257,17 +257,24 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
 
         }
 
-
-        public void InstallApplication(Apk apk) {
-
+        public String appNameGenerator(Apk apk) {
             StringBuilder Appname = new StringBuilder();
             Appname.append(apk.getAppName());
             Appname.append("-");
             Appname.append(apk.getAppPackage());
             Appname.append("-");
             Appname.append(apk.getAppVersionName());
+            Appname.append(".apk");
 
-            File file = new File(rootPath, Appname + ".apk");
+            return Appname.toString();
+        }
+
+        public void InstallApplication(Apk apk) {
+
+            String Appname = appNameGenerator(apk);
+
+
+            File file = new File(rootPath, Appname);
 
             if (Build.VERSION.SDK_INT >= 24) {
 

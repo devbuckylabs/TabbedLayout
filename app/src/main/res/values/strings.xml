@@ -11,6 +11,7 @@
 
     <!-- Strings related to activity_main -->
     <string name="backup_button">BACKUP</string>
+    <string name="restore_button">RESTORE</string>
 
     <!-- Strings related to activity_permission_settings -->
     <string name="grant_permission">Grant Permission</string>

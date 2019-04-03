@@ -1,19 +1,16 @@
 package com.buckylabs.tabbedlayoutexp;
 
-import android.Manifest;
-import android.app.Application;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -21,13 +18,8 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,35 +32,24 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ProgressBar;
-import android.widget.TableLayout;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.spi.FileTypeDetector;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import es.dmoral.toasty.Toasty;
 
-import static android.app.Activity.RESULT_OK;
 import static android.os.Looper.getMainLooper;
 import static android.widget.GridLayout.HORIZONTAL;
 import static android.widget.GridLayout.VERTICAL;
@@ -91,10 +72,9 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     CheckBox checkBox_selectAll;
     private boolean isAllChecked;
     SharedPreferences preferences;
+    private String rootPath;
+    private Handler handler;
 
-    String rootPath;
-    Handler handler;
-    //ProgressDialog progressDialog;
 
     public Fragment_1() {
         // Required empty public constructor
@@ -242,6 +222,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         for (ApplicationInfo app : apps) {
 
             PackageInfo packageInfo = pm.getPackageInfo(app.packageName, PackageManager.GET_META_DATA);
+
             if (isSys) {
 
                 Apk apk = getApk(packageInfo);
@@ -261,11 +242,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
             }
         }
 
-        if (installedApks.size() <= 0) {
-            Log.e("Empty List", "*****************************************************");
-            return new ArrayList<>();
-        }
-        Log.e("InstalledList", "*****" + installedApks.toString());
         return installedApks;
     }
 
@@ -281,8 +257,8 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        List<Apk> archivedApks = getArchivedApps();
 
+        List<Apk> archivedApks = getArchivedApps();
 
         for (Apk apk1 : installedApks) {
 
@@ -306,7 +282,14 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     public List<Apk> getArchivedApps() {
 
         File directory = new File(rootPath);
-        File[] files = directory.listFiles();
+        File[] files = directory.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+
+                return name.toLowerCase().endsWith(".apk");
+            }
+        });
+
         for (File file : files) {
             Log.e("Archive FilesName", "" + file.getName());
             PackageInfo packinfo = pm.getPackageArchiveInfo(rootPath + "/" + file.getName(), 0);
@@ -331,7 +314,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         String AppVersionName = packinfo.versionName;
         long time = new File(packinfo.applicationInfo.sourceDir).lastModified();
         String date = getAppDate(time);
-        Log.e("Dateeeee", packinfo.lastUpdateTime + "");
+        Log.e("Date", packinfo.lastUpdateTime + "");
         String sourcedirectory = packinfo.applicationInfo.sourceDir;
         String AppStatus = "";
         File file1 = new File(packinfo.applicationInfo.sourceDir);
@@ -345,12 +328,9 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
 
     public String getAppDate(long milliseconds) {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-        String dateString = formatter.format(new Date(milliseconds));
-        if (dateString == null) {
-            return "";
-        }
 
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+        String dateString = formatter.format(new Date(milliseconds));
         return dateString;
     }
 
@@ -360,14 +340,14 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         if (sizeInBytes < 1048576) {
 
             double sizeInKB = sizeInBytes / 1024;
-            String size = String.format("%.1f", sizeInKB);
+            String size = String.format(Locale.US, "%.1f", sizeInKB);
 
 
             return size + " KB";
         } else if (sizeInBytes < 1073741824) {
 
             double sizeInMb = sizeInBytes / 1048576;
-            String size = String.format("%.1f", sizeInMb);
+            String size = String.format(Locale.US, "%.1f", sizeInMb);
             return size + " MB";
 
         }
@@ -395,8 +375,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                     checkAllBoxes();
                 } else {
                     uncheckAllBoxes();
-
-
                 }
 
 
@@ -416,7 +394,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                 listApk.add(apk);
             }
         }
-        //checkBox_selectAll.setChecked(false);
+
 
         Apk arrayApk[] = new Apk[listApk.size()];
         for (int k = 0; k < listApk.size(); k++) {
@@ -517,6 +495,18 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         }
     }
 
+    public String appNameGenerator(Apk apk) {
+        StringBuilder Appname = new StringBuilder();
+        Appname.append(apk.getAppName());
+        Appname.append("-");
+        Appname.append(apk.getAppPackage());
+        Appname.append("-");
+        Appname.append(apk.getAppVersionName());
+        Appname.append(".apk");
+
+        return Appname.toString();
+    }
+
     public void refresh() {
         adapter.notifyDataSetChanged();
     }
@@ -527,11 +517,10 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         refresh();
         for (Apk apk : apks) {
             if (apk.isChecked()) {
-                File file = new File(apk.getSourceDirectory());
 
+                File file = new File(apk.getSourceDirectory());
                 Uri uri = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
                 shareApks.add(uri);
-
 
             }
         }
@@ -599,12 +588,8 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }*/
-                        StringBuilder Appname = new StringBuilder();
-                        Appname.append(apk.getAppName());
-                        Appname.append("-");
-                        Appname.append(apk.getAppPackage());
-                        Appname.append("-");
-                        Appname.append(apk.getAppVersionName());
+                        String Appname = appNameGenerator(apk);
+
                         try {
                             File f1 = new File(apk.getSourceDirectory());
                             File f2 = new File(rootPath);
@@ -634,7 +619,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                                 }
                             }
 
-                            f2 = new File(rootPath + "/" + Appname + ".apk");
+                            f2 = new File(rootPath + "/" + Appname);
 
                             if (!f2.exists()) {
 
@@ -691,7 +676,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
             progressDialog.cancel();
             uncheckAllBoxes();
             checkBox_selectAll.setChecked(false);
-            Toasty.success(getContext(), "Archived", Toast.LENGTH_SHORT, true).show();
+            Toasty.success(context, "Archived", Toast.LENGTH_SHORT, true).show();
             refresh();
 
         }

@@ -24,7 +24,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import java.util.Locale;
 
 
 public class Service extends BroadcastReceiver {
@@ -132,7 +132,7 @@ public class Service extends BroadcastReceiver {
     }
 
     public String getAppDate(long milliseconds) {
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
         String dateString = formatter.format(new Date(milliseconds));
         if (dateString == null) {
             return "";
@@ -147,14 +147,14 @@ public class Service extends BroadcastReceiver {
         if (sizeInBytes < 1048576) {
 
             double sizeInKB = sizeInBytes / 1024;
-            String size = String.format("%.1f", sizeInKB);
+            String size = String.format(Locale.US, "%.1f", sizeInKB);
 
 
             return size + " KB";
         } else if (sizeInBytes < 1073741824) {
 
             double sizeInMb = sizeInBytes / 1048576;
-            String size = String.format("%.1f", sizeInMb);
+            String size = String.format(Locale.US, "%.1f", sizeInMb);
             return size + " MB";
 
         }

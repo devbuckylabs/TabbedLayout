@@ -115,9 +115,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
                 apks.get(getAdapterPosition()).setChecked(false);
 
             } else {
-               /* Animation animation1 = new AlphaAnimation(0.3f, 1.0f);
-                animation1.setDuration(4000);
-                v.startAnimation(animation1);*/
+
                 checkBox.setChecked(true);
                 apks.get(getAdapterPosition()).setChecked(true);
 
@@ -244,16 +242,22 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
 
         }
 
+        public String appNameGenerator(Apk apk) {
+            StringBuilder Appname = new StringBuilder();
+            Appname.append(apk.getAppName());
+            Appname.append("-");
+            Appname.append(apk.getAppPackage());
+            Appname.append("-");
+            Appname.append(apk.getAppVersionName());
+            Appname.append(".apk");
+
+            return Appname.toString();
+        }
+
         public void writeData(Apk apk) {
 
             try {
-                StringBuilder Appname = new StringBuilder();
-                Appname.append(apk.getAppName());
-                Appname.append("-");
-                Appname.append(apk.getAppPackage());
-                Appname.append("-");
-                Appname.append(apk.getAppVersionName());
-
+                String Appname = appNameGenerator(apk);
                 File f1 = new File(apk.getSourceDirectory());
 
                 File f2 = new File(rootPath);
@@ -261,7 +265,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
                     f2.mkdirs();
                 }
 
-                f2 = new File(rootPath + "/" + Appname + ".apk");
+                f2 = new File(rootPath + "/" + Appname);
 
                 if (!f2.exists()) {
                     f2.createNewFile();

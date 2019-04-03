@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
@@ -18,13 +16,6 @@ import android.widget.Button;
 
 import android.widget.ImageButton;
 import android.widget.Toast;
-
-import com.mancj.materialsearchbar.MaterialSearchBar;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import es.dmoral.toasty.Toasty;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -42,10 +33,10 @@ public class MainActivity extends AppCompatActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (preferences.getBoolean("example_switch", false)) {
             setTheme(R.style.DarkTheme);
-            // recreate();
+
         } else {
             setTheme(R.style.AppTheme);
-            // recreate();
+
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -63,9 +54,7 @@ public class MainActivity extends AppCompatActivity {
         setupViewPager(mViewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
-        /*Tab tab=tabLayout.getTabAt(0);
-        int installedAppsSize=((Fragment_1)mSectionsPagerAdapter.getItem(0)).installedAppsSize;
-        tab.setText("Installed Apps "+"("+installedAppsSize+")");*/
+
 
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -80,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         Service br = new Service();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_INSTALL);
+        // intentFilter.addAction(Intent.ACTION_PACKAGE_INSTALL);
         intentFilter.addDataScheme("package");
         registerReceiver(br, intentFilter);
 
@@ -163,11 +152,11 @@ public class MainActivity extends AppCompatActivity {
 
                 if(tabLayout.getSelectedTabPosition()==0){
 
-                    backup_Btn.setText("BACKUP");
+                    backup_Btn.setText(R.string.backup_button);
 
                 }else {
 
-                    backup_Btn.setText("RESTORE");
+                    backup_Btn.setText(R.string.restore_button);
 
 
                 }
@@ -229,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent intent = new Intent(MainActivity.this, SettingsActivityNew.class);
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             /*intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsActivity.GeneralPreferenceFragment.class.getName());
             intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);*/
 

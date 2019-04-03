@@ -2,17 +2,14 @@ package com.buckylabs.tabbedlayoutexp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Environment;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatDelegate;
 
-public class SettingsActivityNew extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity {
     SharedPreferences preferences;
     SharedPreferences.OnSharedPreferenceChangeListener listener;
     @Override
@@ -41,14 +38,14 @@ public class SettingsActivityNew extends PreferenceActivity {
 
                     if (value) {
 
-                        Intent i = new Intent(SettingsActivityNew.this, MainActivity.class);
+                        Intent i = new Intent(SettingsActivity.this, MainActivity.class);
                         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(i);
                         finish();
 
                     } else {
 
-                        Intent i = new Intent(SettingsActivityNew.this, MainActivity.class);
+                        Intent i = new Intent(SettingsActivity.this, MainActivity.class);
                         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(i);
                         finish();

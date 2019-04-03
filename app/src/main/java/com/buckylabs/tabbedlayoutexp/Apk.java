@@ -1,6 +1,5 @@
 package com.buckylabs.tabbedlayoutexp;
 
-import android.content.pm.ApplicationInfo;
 import android.graphics.drawable.Drawable;
 
 public class Apk {

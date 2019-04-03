@@ -6,6 +6,6 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:background="?attr/background_color"
-    tools:context=".SettingsActivityNew">
+    tools:context=".SettingsActivity">
 
 </android.support.constraint.ConstraintLayout>
