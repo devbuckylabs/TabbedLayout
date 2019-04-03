@@ -182,6 +182,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     @Override
     public void onResume() {
         super.onResume();
+        getPreferences();
         refresh();
     }
 
