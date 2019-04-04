@@ -3,23 +3,16 @@ package com.buckylabs.tabbedlayoutexp;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.FileProvider;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,19 +28,13 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-
 import es.dmoral.toasty.Toasty;
 
 import static android.os.Looper.getMainLooper;
@@ -61,20 +48,16 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
     private RecyclerView recyclerView;
     private List<Apk> apks;
-    private List<Apk> installedApks;
-    private List<Apk> archivedApks;
     private PackageManager pm;
-    private boolean isChecked;
     private boolean isSys;
     private boolean isOverride;
     private boolean isAutoBackup;
     private AdapterInstalledApps adapter;
-    CheckBox checkBox_selectAll;
-    private boolean isAllChecked;
-    SharedPreferences preferences;
+    private CheckBox checkBox_selectAll;
+    private SharedPreferences preferences;
     private String rootPath;
     private Handler handler;
-
+    private Context context;
 
     public Fragment_1() {
         // Required empty public constructor
@@ -87,18 +70,14 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         // Inflate the layout for this fragment
 
         View v = inflater.inflate(R.layout.fragment_1, container, false);
+        context = getActivity();
         recyclerView = v.findViewById(R.id.recyclerView);
-        pm = getActivity().getPackageManager();
-        isChecked = false;
+        pm = context.getPackageManager();
         isSys = false;
         isOverride = false;
         isAutoBackup = false;
-        isAllChecked = true;
         handler = new Handler(getMainLooper());
         apks = new ArrayList<>();
-        installedApks = new ArrayList<>();
-        archivedApks = new ArrayList<>();
-
         rootPath = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/App_Backup_Pro/";
         return v;
@@ -115,7 +94,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         createDirectory();
         getPreferences();
         registerForContextMenu(recyclerView);
-
         setHasOptionsMenu(true);
     }
 
@@ -124,25 +102,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         super.onCreateContextMenu(menu, v, menuInfo);
     }
 
-  /*  @Override
-    public boolean onContextItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-
-            case R.id.backup:
-                Toast.makeText(getContext(), "Backup", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.uninstall:
-
-                Toast.makeText(getContext(), "Uninstall", Toast.LENGTH_SHORT).show();
-
-                return true;
-            default:
-                return super.onContextItemSelected(item);
-        }
-
-
-    }*/
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -178,13 +137,9 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         List<Apk> list = new ArrayList<>();
 
         for (Apk apk : apks) {
-
             if (apk.getAppName().toLowerCase().contains(input)) {
-
                 list.add(apk);
-
             }
-
             adapter.updateList(list);
         }
 
@@ -194,71 +149,39 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
     public void initRecyclerView() {
         recyclerView.hasFixedSize();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        DividerItemDecoration itemDecor = new DividerItemDecoration(getActivity(), HORIZONTAL);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        DividerItemDecoration itemDecor = new DividerItemDecoration(context, HORIZONTAL);
         itemDecor.setOrientation(VERTICAL);
         recyclerView.addItemDecoration(itemDecor);
-        adapter = new AdapterInstalledApps(getActivity(), apks);
+        adapter = new AdapterInstalledApps(context, apks);
         recyclerView.setAdapter(adapter);
 
     }
 
 
     public void getPreferences() {
-        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
         isSys = preferences.getBoolean("show_sys_apps", false);
         isOverride = preferences.getBoolean("override", false);
         isAutoBackup = preferences.getBoolean("auto_backup", false);
     }
 
-    public List<Apk> getApks(boolean isSys) throws PackageManager.NameNotFoundException {
-
-        Intent intent = new Intent(Intent.ACTION_MAIN, null);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ApplicationInfo> apps = pm.getInstalledApplications(0);
-        Collections.sort(apps, new ApplicationInfo.DisplayNameComparator(pm));
-        Log.e("App Size ", "" + apps.size());
-
-        for (ApplicationInfo app : apps) {
-
-            PackageInfo packageInfo = pm.getPackageInfo(app.packageName, PackageManager.GET_META_DATA);
-
-            if (isSys) {
-
-                Apk apk = getApk(packageInfo);
-                installedApks.add(apk);
-            } else {
-
-                if ((app.flags & (ApplicationInfo.FLAG_UPDATED_SYSTEM_APP | ApplicationInfo.FLAG_SYSTEM)) > 0) {
-
-                } else {
-
-                    Apk apk = getApk(packageInfo);
-                    installedApks.add(apk);
-
-                }
-
-
-            }
-        }
-
-        return installedApks;
-    }
-
 
     public void populateRecyclerview() {
 
-        installedApks.clear();
-        archivedApks.clear();
         apks.clear();
         uncheckAllBoxes();
+        ApkManager manager = new ApkManager(context);
+
+        List<Apk> installedApks = new ArrayList<>();
+
         try {
-            installedApks = getApks(isSys);
+            installedApks = manager.getinstalledApks(isSys);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
 
-        List<Apk> archivedApks = getArchivedApps();
+        List<Apk> archivedApks = manager.getArchivedApks();
 
         for (Apk apk1 : installedApks) {
 
@@ -279,80 +202,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     }
 
 
-    public List<Apk> getArchivedApps() {
-
-        File directory = new File(rootPath);
-        File[] files = directory.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-
-                return name.toLowerCase().endsWith(".apk");
-            }
-        });
-
-        for (File file : files) {
-            Log.e("Archive FilesName", "" + file.getName());
-            PackageInfo packinfo = pm.getPackageArchiveInfo(rootPath + "/" + file.getName(), 0);
-            packinfo.applicationInfo.sourceDir = file.getAbsolutePath();
-            packinfo.applicationInfo.publicSourceDir = file.getAbsolutePath();
-
-            Apk apk = getApk(packinfo);
-            archivedApks.add(apk);
-
-        }
-
-        return archivedApks;
-
-    }
-
-    public Apk getApk(PackageInfo packinfo) {
-
-
-        String AppName = (String) packinfo.applicationInfo.loadLabel(pm);
-        Drawable AppIcon = packinfo.applicationInfo.loadIcon(pm);
-        String AppPackage = packinfo.packageName;
-        String AppVersionName = packinfo.versionName;
-        long time = new File(packinfo.applicationInfo.sourceDir).lastModified();
-        String date = getAppDate(time);
-        Log.e("Date", packinfo.lastUpdateTime + "");
-        String sourcedirectory = packinfo.applicationInfo.sourceDir;
-        String AppStatus = "";
-        File file1 = new File(packinfo.applicationInfo.sourceDir);
-        String Appsize = getAppSize(file1.length());
-        boolean isChecked = false;
-        Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, sourcedirectory, isChecked);
-
-        return apk;
-
-    }
-
-
-    public String getAppDate(long milliseconds) {
-
-        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
-        String dateString = formatter.format(new Date(milliseconds));
-        return dateString;
-    }
-
-
-    public String getAppSize(double sizeInBytes) {
-
-        if (sizeInBytes < 1048576) {
-
-            double sizeInKB = sizeInBytes / 1024;
-            String size = String.format(Locale.US, "%.1f", sizeInKB);
-
-
-            return size + " KB";
-        } else if (sizeInBytes < 1073741824) {
-
-            double sizeInMb = sizeInBytes / 1048576;
-            String size = String.format(Locale.US, "%.1f", sizeInMb);
-            return size + " MB";
-
-        }
-        return "";
-    }
 
 
     @Override
@@ -401,12 +250,12 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
             arrayApk[k] = listApk.get(k);
         }
 
-        BackupHelper backupHelper = new BackupHelper(getContext());
+        BackupHelper backupHelper = new BackupHelper(context);
         backupHelper.execute(arrayApk);
     }
 
 
-    public void backupApks() {
+    /*public void backupApks() {
 
         Log.e("Apksssssssss", apks.toString());
         for (Apk apk : apks) {
@@ -418,13 +267,13 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
             }
 
         }
-        Toasty.success(getContext(), "Archived", Toast.LENGTH_SHORT, true).show();
+        Toasty.success(context, "Archived", Toast.LENGTH_SHORT, true).show();
         uncheckAllBoxes();
 
     }
+*/
 
-
-    public void writeData(Apk apk) {
+    /*public void writeData(Apk apk) {
 
         try {
             File f1 = new File(apk.getSourceDirectory());
@@ -455,7 +304,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
 
     }
-
+*/
     private void updateStatus(Apk apk) {
 
         apk.setAppStatus("Archived");
@@ -495,57 +344,27 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         }
     }
 
-    public String appNameGenerator(Apk apk) {
-        StringBuilder Appname = new StringBuilder();
-        Appname.append(apk.getAppName());
-        Appname.append("-");
-        Appname.append(apk.getAppPackage());
-        Appname.append("-");
-        Appname.append(apk.getAppVersionName());
-        Appname.append(".apk");
-
-        return Appname.toString();
-    }
 
     public void refresh() {
         adapter.notifyDataSetChanged();
     }
 
     public void shareApks() {
-        List<Uri> shareApks = new ArrayList<>();
-        //File file = new File("");
+        List<Apk> shareApks = new ArrayList<>();
         refresh();
         for (Apk apk : apks) {
             if (apk.isChecked()) {
 
-                File file = new File(apk.getSourceDirectory());
-                Uri uri = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
-                shareApks.add(uri);
+                shareApks.add(apk);
 
             }
         }
 
-        if (shareApks.isEmpty()) {
-            Toast.makeText(getContext(), "Select a app to share ", Toast.LENGTH_SHORT).show();
-        } else {
+        ApkManager manager = new ApkManager(context);
+        manager.getApksToShare(shareApks);
+        uncheckAllBoxes();
 
-
-            uncheckAllBoxes();
-
-            Log.e("SHAREAPKS", shareApks.size() + "");
-            Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-            shareIntent.setType("*/*");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "AppBackupPro");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "great");
-            shareIntent.putExtra(Intent.EXTRA_EMAIL, "Checkout my app");
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, (ArrayList<? extends Parcelable>) shareApks);
-            startActivity(Intent.createChooser(shareIntent, "Share app via"));
-
-
-        }
     }
-
 
     class BackupHelper extends AsyncTask<Apk, Integer, String> {
 
@@ -588,7 +407,8 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }*/
-                        String Appname = appNameGenerator(apk);
+                        ApkManager manager = new ApkManager(context);
+                        String Appname = manager.appNameGenerator(apk);
 
                         try {
                             File f1 = new File(apk.getSourceDirectory());
@@ -651,7 +471,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                     }
 
                 }
-                // Toasty.success(getContext(), "Archived", Toast.LENGTH_SHORT, true).show();
+                // Toasty.success(context, "Archived", Toast.LENGTH_SHORT, true).show();
 
 
             }

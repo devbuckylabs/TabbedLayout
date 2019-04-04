@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private Button backup_Btn;
     private ImageButton refresh_Btn;
     private ImageButton share_Btn;
-    SharedPreferences preferences;
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

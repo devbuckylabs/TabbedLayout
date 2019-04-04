@@ -1,16 +1,11 @@
 package com.buckylabs.tabbedlayoutexp;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.v4.content.FileProvider;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -23,16 +18,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApps.ViewHolder> {
 
 
-    List<Apk> apks;
-    Context context;
-    String rootPath;
+    private List<Apk> apks;
+    private Context context;
+    private String rootPath;
 
     public AdapterRestoredApps(Context context, List<Apk> apks) {
         this.apks = apks;
@@ -140,14 +134,14 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
             menu.setHeaderTitle(title);
             ((Activity) context).getMenuInflater().inflate(R.menu.context_menu_frag2, menu);
 
-
+            final ApkManager manager = new ApkManager(context);
+            final DialogManager dialogs = new DialogManager(context);
             menu.getItem(0).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
 
                     Apk apk = apks.get(getAdapterPosition());
-                    InstallApplication(apk);
-
+                    manager.restoreApk(apk);
 
                     return true;
                 }
@@ -179,8 +173,7 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
                     details.append("\n\n");
                     details.append("Date : ");
                     details.append(apk.getDate());
-
-                    alertDialog(Appname.toString(), details.toString());
+                    dialogs.alertDialog(Appname.toString(), details.toString());
 
 
                     return true;
@@ -192,14 +185,8 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
                 public boolean onMenuItemClick(MenuItem item) {
 
                     Apk apk = apks.get(getAdapterPosition());
-                    StringBuilder Appname = new StringBuilder();
-                    Appname.append(apk.getAppName());
-                    Appname.append("-");
-                    Appname.append(apk.getAppPackage());
-                    Appname.append("-");
-                    Appname.append(apk.getAppVersionName());
-                    Appname.append(".apk");
-                    alertDialogDelete(Appname.toString());
+                    String Appname = manager.appNameGenerator(apk);
+                    dialogs.alertDialogDelete(Appname);
 
 
                     return true;
@@ -210,7 +197,8 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
 
-                    shareApk();
+                    Apk apk = apks.get(getAdapterPosition());
+                    manager.shareApk(apk);
 
                     return true;
                 }
@@ -221,18 +209,8 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
                 public boolean onMenuItemClick(MenuItem item) {
 
                     Toast.makeText(context, "Share", Toast.LENGTH_SHORT).show();
-
-                    StringBuilder marketLink = new StringBuilder();
-                    marketLink.append("https://play.google.com/store/apps/details?id=");
-                    marketLink.append(apks.get(getAdapterPosition()).getAppPackage());
-
-                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                    shareIntent.setType("text/plain");
-
-                    shareIntent.putExtra(Intent.EXTRA_TEXT, marketLink.toString());
-                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(Intent.createChooser(shareIntent, "Share via"));
+                    String packageName = apks.get(getAdapterPosition()).getAppPackage();
+                    manager.shareApkLink(packageName);
 
                     return true;
                 }
@@ -257,114 +235,6 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
 
         }
 
-        public String appNameGenerator(Apk apk) {
-            StringBuilder Appname = new StringBuilder();
-            Appname.append(apk.getAppName());
-            Appname.append("-");
-            Appname.append(apk.getAppPackage());
-            Appname.append("-");
-            Appname.append(apk.getAppVersionName());
-            Appname.append(".apk");
 
-            return Appname.toString();
-        }
-
-        public void InstallApplication(Apk apk) {
-
-            String Appname = appNameGenerator(apk);
-
-
-            File file = new File(rootPath, Appname);
-
-            if (Build.VERSION.SDK_INT >= 24) {
-
-                Uri path = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
-                Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(path,
-                        "application/vnd.android.package-archive");
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                context.startActivity(intent);
-            } else {
-
-                Uri uri = Uri.fromFile(file);
-                Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uri,
-                        "application/vnd.android.package-archive");
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(intent);
-
-
-            }
-
-
-        }
-
-
-        public void alertDialog(String title, String message) {
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-            alertDialog.setMessage(message);
-            alertDialog.setTitle(title);
-            alertDialog.create();
-
-            alertDialog.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    dialog.dismiss();
-
-                }
-            });
-            alertDialog.show();
-        }
-
-        public void alertDialogDelete(final String Appname) {
-            AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-            alertDialog.setMessage("Do you want to delete selected archive ?");
-            alertDialog.setTitle("Confirm Delete");
-            alertDialog.create();
-
-            alertDialog.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-
-                    File file = new File(rootPath, Appname);
-                    if (file.exists()) {
-                        file.delete();
-                    }
-                    notifyItemRemoved(getAdapterPosition());
-                    dialog.dismiss();
-
-                }
-            });
-
-            alertDialog.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    dialog.dismiss();
-
-                }
-            });
-            alertDialog.show();
-        }
-
-        public void shareApk() {
-
-            Apk apk = apks.get(getAdapterPosition());
-            File file = new File(apk.getSourceDirectory());
-            Uri uri = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
-
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("application/vnd.android.package-archive");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, apk.getAppName() + ".apk");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this amazing app");
-            shareIntent.putExtra(Intent.EXTRA_EMAIL, "Checkout my app");
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
-            context.startActivity(Intent.createChooser(shareIntent, "Share app via"));
-
-
-        }
     }
 }

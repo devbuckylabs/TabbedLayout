@@ -15,22 +15,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledApps.ViewHolder> {
 
-    List<Apk> apks = new ArrayList<>();
-    Context context;
-    String rootPath;
+    private List<Apk> apks;
+    private Context context;
+    private String rootPath;
 
     public AdapterInstalledApps(Context context, List<Apk> apks) {
         this.apks = apks;
@@ -53,7 +47,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
     public void onBindViewHolder(@NonNull AdapterInstalledApps.ViewHolder viewHolder, int i) {
 
         final Apk apk = apks.get(i);
-        // Log.e("APPPPP",""+apk.getAppName());
+
         viewHolder.appName.setText(apk.getAppName());
         viewHolder.appIcon.setImageDrawable(apk.getAppIcon());
         viewHolder.appversion.setText("v" + apk.getAppVersionName());
@@ -146,12 +140,14 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
             ((Activity) context).getMenuInflater().inflate(R.menu.context_menu_frag1, menu);
 
 
+            final ApkManager manager = new ApkManager(context);
+
             menu.getItem(0).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
                     Toast.makeText(context, "Backup", Toast.LENGTH_SHORT).show();
                     Apk apk = apks.get(getAdapterPosition());
-                    writeData(apk);
+                    manager.backupApk(apk);
                     return true;
                 }
             });
@@ -206,18 +202,8 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
                 public boolean onMenuItemClick(MenuItem item) {
 
                     Toast.makeText(context, "Share", Toast.LENGTH_SHORT).show();
-
-                    StringBuilder marketLink = new StringBuilder();
-                    marketLink.append("https://play.google.com/store/apps/details?id=");
-                    marketLink.append(apks.get(getAdapterPosition()).getAppPackage());
-
-                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                    shareIntent.setType("text/plain");
-
-                    shareIntent.putExtra(Intent.EXTRA_TEXT, marketLink.toString());
-                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(Intent.createChooser(shareIntent, "Share via"));
+                    String packageName = apks.get(getAdapterPosition()).getAppPackage();
+                    manager.shareApkLink(packageName);
 
                     return true;
                 }
@@ -238,55 +224,6 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
                     return true;
                 }
             });
-
-
-        }
-
-        public String appNameGenerator(Apk apk) {
-            StringBuilder Appname = new StringBuilder();
-            Appname.append(apk.getAppName());
-            Appname.append("-");
-            Appname.append(apk.getAppPackage());
-            Appname.append("-");
-            Appname.append(apk.getAppVersionName());
-            Appname.append(".apk");
-
-            return Appname.toString();
-        }
-
-        public void writeData(Apk apk) {
-
-            try {
-                String Appname = appNameGenerator(apk);
-                File f1 = new File(apk.getSourceDirectory());
-
-                File f2 = new File(rootPath);
-                if (!f2.exists()) {
-                    f2.mkdirs();
-                }
-
-                f2 = new File(rootPath + "/" + Appname);
-
-                if (!f2.exists()) {
-                    f2.createNewFile();
-                    InputStream in = new FileInputStream(f1);
-                    FileOutputStream out = new FileOutputStream(f2);
-                    byte[] buf = new byte[1024];
-                    int len;
-                    while ((len = in.read(buf)) > 0) {
-                        out.write(buf, 0, len);
-                    }
-                    Log.e("BackUp Complete ", Appname.toString());
-                    out.flush();
-                    out.close();
-                } else {
-                    Toast.makeText(context, "App already backed up", Toast.LENGTH_SHORT).show();
-                }
-            } catch (Exception e) {
-
-                Log.e("Exception", "********************************************* ");
-                e.printStackTrace();
-            }
 
 
         }
