@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,6 +59,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     private String rootPath;
     private Handler handler;
     private Context context;
+    private ProgressBar progressBar;
 
     public Fragment_1() {
         // Required empty public constructor
@@ -78,6 +80,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         isAutoBackup = false;
         handler = new Handler(getMainLooper());
         apks = new ArrayList<>();
+        progressBar = v.findViewById(R.id.progressBar1);
         rootPath = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/App_Backup_Pro/";
         return v;
@@ -111,6 +114,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                progressBar.setVisibility(View.GONE);
                 populateRecyclerview();
             }
         }, 30);

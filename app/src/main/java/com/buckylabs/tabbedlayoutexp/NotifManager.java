@@ -14,9 +14,7 @@ public class NotifManager {
     private static final String CHANNEL_ID = "Auto_Backup";
     private static final String CHANNEL_NAME = "Spooks";
     private static final String CHANNEL_DESC = "Adios";
-
     private static final int NOTIFICATION_ID = 404;
-
     private Context context;
 
     public NotifManager(Context context) {
