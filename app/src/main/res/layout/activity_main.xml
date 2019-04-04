@@ -87,6 +87,7 @@
             android:background="?attr/button_color"
             android:textColor="@android:color/white" />
 
+
         <ImageButton
             android:id="@+id/share"
             android:layout_width="wrap_content"

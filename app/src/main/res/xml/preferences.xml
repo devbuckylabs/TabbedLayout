@@ -27,7 +27,13 @@
     <PreferenceCategory android:title="@string/pref_category_auto_backup">
         <CheckBoxPreference
             android:key="auto_backup"
+            android:checked="true"
             android:title="@string/enable_auto_backup" />
+        <CheckBoxPreference
+            android:key="auto_backup_notify"
+            android:dependency="auto_backup"
+            android:title="@string/auto_backup_notify"
+            android:summary="@string/auto_backup_notify_desc" />
     </PreferenceCategory>
 
 </PreferenceScreen>

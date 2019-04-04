@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         share_Btn = findViewById(R.id.share);
 
 
+
         Service br = new Service();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
@@ -105,13 +106,13 @@ public class MainActivity extends AppCompatActivity {
 
                     //  TabLayout.Tab tab = tabLayout.getTabAt(0);
 
-                    ((Fragment_1) mSectionsPagerAdapter.getItem(0)).populateRecyclerview();
+                    ((Fragment_1) mSectionsPagerAdapter.getItem(0)).populateRcInit();
                     Toast.makeText(MainActivity.this, "Refreshed", Toast.LENGTH_SHORT).show();
 
                 } else {
 
 
-                    ((Fragment_2) mSectionsPagerAdapter.getItem(1)).populateRecyclerview();
+                    ((Fragment_2) mSectionsPagerAdapter.getItem(1)).populateRcInit();
 
                     Toast.makeText(MainActivity.this, "Refreshed", Toast.LENGTH_SHORT).show();
                 }

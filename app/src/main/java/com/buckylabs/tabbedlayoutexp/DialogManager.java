@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.Environment;
 
 import java.io.File;
+import java.util.List;
 
 public class DialogManager {
 
@@ -50,9 +51,42 @@ public class DialogManager {
                 if (file.exists()) {
                     file.delete();
                 }
-                // notifyItemRemoved(getAdapterPosition());
                 dialog.dismiss();
 
+            }
+        });
+
+        alertDialog.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                dialog.dismiss();
+
+            }
+        });
+        alertDialog.show();
+    }
+
+
+    public void alertDialogDeleteMultiple(final List<String> appnames) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+        alertDialog.setMessage("Do you want to delete selected archive ?");
+        alertDialog.setTitle("Confirm Delete");
+        alertDialog.create();
+
+        alertDialog.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                for (String Appname : appnames) {
+                    File file = new File(rootPath, Appname);
+                    if (file.exists()) {
+                        file.delete();
+                    }
+
+
+                }
+                dialog.dismiss();
             }
         });
 

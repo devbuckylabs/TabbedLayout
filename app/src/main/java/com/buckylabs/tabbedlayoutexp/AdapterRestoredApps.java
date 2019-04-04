@@ -1,7 +1,9 @@
 package com.buckylabs.tabbedlayoutexp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
@@ -18,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -186,7 +189,9 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
 
                     Apk apk = apks.get(getAdapterPosition());
                     String Appname = manager.appNameGenerator(apk);
-                    dialogs.alertDialogDelete(Appname);
+                    alertDialogDelete(Appname);
+
+
 
 
                     return true;
@@ -235,6 +240,44 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
 
         }
 
+        public void alertDialogDelete(final String Appname) {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+            alertDialog.setMessage("Do you want to delete selected archive ?");
+            alertDialog.setTitle("Confirm Delete");
+            alertDialog.create();
+
+            alertDialog.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+
+                    File file = new File(rootPath, Appname);
+                    if (file.exists()) {
+                        file.delete();
+                        notifyItemRemoved(getAdapterPosition());
+                    }
+                    dialog.dismiss();
+
+                }
+            });
+
+            alertDialog.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    dialog.dismiss();
+
+                }
+            });
+            alertDialog.show();
+        }
+
+
 
     }
+
+
 }
+
+
+

@@ -116,13 +116,22 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        populateRcInit();
+
+    }
+
+    public void populateRcInit() {
+        recyclerViewRestore.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressBar.setVisibility(View.GONE);
+                progressBar.setVisibility(View.INVISIBLE);
+                recyclerViewRestore.setVisibility(View.VISIBLE);
                 populateRecyclerview();
             }
         }, 30);
+
 
     }
 
@@ -167,8 +176,6 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
         recyclerViewRestore.setAdapter(adapter);
 
     }
-
-
 
 
     public void populateRecyclerview() {
@@ -230,8 +237,6 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
     }
 
 
-
-
     public void uncheckAllBoxes() {
 
         for (Apk apk : apks) {
@@ -270,7 +275,25 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
         uncheckAllBoxes();
 
 
+    }
 
+    public void deleteApks() {
+
+        List<String> appnames = new ArrayList<>();
+        ApkManager manager = new ApkManager(context);
+        DialogManager dialogManager = new DialogManager(context);
+        for (Apk apk : apks) {
+            if (apk.isChecked()) {
+                String Appname = manager.appNameGenerator(apk);
+                appnames.add(Appname);
+            }
+        }
+        if (appnames.isEmpty()) {
+            Toast.makeText(context, "Select a app to delete", Toast.LENGTH_SHORT).show();
+        } else {
+            dialogManager.alertDialogDeleteMultiple(appnames);
+
+        }
     }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -280,6 +303,18 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
         SearchView searchView = (SearchView) searchItem.getActionView();
         searchView.setOnQueryTextListener(this);
         searchView.setQueryHint("Search...");
+
+        MenuItem uninstallItem = menu.findItem(R.id.uninstall_item);
+        uninstallItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                deleteApks();
+                uncheckAllBoxes();
+                refresh();
+                return true;
+            }
+        });
+
 
         MenuItem selectAll = menu.findItem(R.id.select_all);
         checkBox_selectAll = (CheckBox) selectAll.getActionView();

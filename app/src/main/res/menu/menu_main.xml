@@ -22,7 +22,12 @@
         android:checkable="true"
         app:actionViewClass="android.widget.CheckBox"
         android:checked="false"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 
+    <item
+        android:id="@+id/uninstall_item"
+        android:title="@string/uninstall"
+        android:icon="@drawable/ic_delete_black_24dp"
+        app:showAsAction="always" />
 
 </menu>

@@ -31,6 +31,7 @@ public class Service extends BroadcastReceiver {
 
     private PackageManager pm;
     boolean isAutoBackup;
+    boolean isAutoBackupNotify;
     private SharedPreferences preferences;
     private Context context;
 
@@ -38,7 +39,8 @@ public class Service extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         this.context = context;
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        isAutoBackup = preferences.getBoolean("auto_backup", false);
+        isAutoBackup = preferences.getBoolean("auto_backup", true);
+        isAutoBackupNotify = preferences.getBoolean("auto_backup_notify", true);
         pm = context.getPackageManager();
 
         String packageName = intent.getData().getEncodedSchemeSpecificPart();
@@ -62,7 +64,7 @@ public class Service extends BroadcastReceiver {
                 Boolean isBackup = manager.backupApk(apk);
                 Toast.makeText(context, "Auto Backup Completed", Toast.LENGTH_SHORT).show();
                 Log.e("%%%Service", "Auto Backup Completed");
-                if (isBackup) {
+                if (isBackup && isAutoBackupNotify) {
                     NotifManager notifManager = new NotifManager(context);
                     notifManager.displayNotification(Appname);
                 }

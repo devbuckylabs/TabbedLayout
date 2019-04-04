@@ -29,6 +29,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,6 +37,7 @@ import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import es.dmoral.toasty.Toasty;
 
 import static android.os.Looper.getMainLooper;
@@ -60,6 +62,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     private Handler handler;
     private Context context;
     private ProgressBar progressBar;
+    private boolean isAutoBackupNotify;
 
     public Fragment_1() {
         // Required empty public constructor
@@ -78,6 +81,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         isSys = false;
         isOverride = false;
         isAutoBackup = false;
+        isAutoBackupNotify = false;
         handler = new Handler(getMainLooper());
         apks = new ArrayList<>();
         progressBar = v.findViewById(R.id.progressBar1);
@@ -110,17 +114,24 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        populateRcInit();
 
+    }
+
+    public void populateRcInit() {
+        recyclerView.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressBar.setVisibility(View.GONE);
+                progressBar.setVisibility(View.INVISIBLE);
+                recyclerView.setVisibility(View.VISIBLE);
                 populateRecyclerview();
             }
         }, 30);
 
-    }
 
+    }
 
     @Override
     public void onResume() {
@@ -168,15 +179,17 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         isSys = preferences.getBoolean("show_sys_apps", false);
         isOverride = preferences.getBoolean("override", false);
         isAutoBackup = preferences.getBoolean("auto_backup", false);
+        isAutoBackupNotify = preferences.getBoolean("auto_backup_notify", true);
+
     }
 
 
     public void populateRecyclerview() {
 
         apks.clear();
+        refresh();
         uncheckAllBoxes();
         ApkManager manager = new ApkManager(context);
-
         List<Apk> installedApks = new ArrayList<>();
 
         try {
@@ -206,8 +219,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     }
 
 
-
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
@@ -217,6 +228,17 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         searchView.setOnQueryTextListener(this);
         searchView.setQueryHint("Search...");
 
+        MenuItem uninstallItem = menu.findItem(R.id.uninstall_item);
+        uninstallItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                uninstallApks();
+                uncheckAllBoxes();
+                refresh();
+
+                return true;
+            }
+        });
 
         MenuItem selectAll = menu.findItem(R.id.select_all);
         checkBox_selectAll = (CheckBox) selectAll.getActionView();
@@ -369,6 +391,26 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         uncheckAllBoxes();
 
     }
+
+    public void uninstallApks() {
+
+        List<Apk> listapks = new ArrayList<>();
+        for (Apk apk : apks) {
+            if (apk.isChecked()) {
+                listapks.add(apk);
+            }
+
+        }
+        if (listapks.isEmpty()) {
+            Toast.makeText(context, "Select a app to uninstall", Toast.LENGTH_SHORT).show();
+        } else {
+
+            ApkManager manager = new ApkManager(context);
+            manager.uninstallApks(listapks);
+        }
+
+    }
+
 
     class BackupHelper extends AsyncTask<Apk, Integer, String> {
 

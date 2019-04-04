@@ -27,7 +27,8 @@
 
     <string name="pref_category_auto_backup">Auto Backup</string>
     <string name="enable_auto_backup">Enable Auto Backup</string>
-
+    <string name="auto_backup_notify">Auto Backup Notify</string>
+    <string name="auto_backup_notify_desc">Send notification after auto backup completed</string>
 
     <!-- Strings related to main_menu -->
     <string name="action_settings">Settings</string>

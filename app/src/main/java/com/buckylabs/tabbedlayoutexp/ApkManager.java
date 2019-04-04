@@ -303,4 +303,24 @@ public class ApkManager {
         return Appname.toString();
     }
 
+    public void uninstallApks(List<Apk> apks) {
+
+        for (Apk apk : apks) {
+            Intent intent = new Intent(Intent.ACTION_DELETE);
+            intent.setData(Uri.parse("package:" + apk.getAppPackage()));
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
+    }
+
+    public void deleteApks(List<Apk> apks) {
+
+        for (Apk apk : apks) {
+            Intent intent = new Intent(Intent.ACTION_DELETE);
+            intent.setData(Uri.parse("package:" + apk.getAppPackage()));
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
+    }
+
 }
