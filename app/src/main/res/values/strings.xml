@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">TabbedLayoutExp</string>
+    <string name="app_name">App Backup Pro</string>
     <string name="tab_text_1">Installed Apps</string>
     <string name="tab_text_2">Archived</string>
 
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="permission_text">App needs Storage permission to backup data to storage. Click "Grant Permissions" below and press "Allow".  </string>
+    <string name="permission_text">App requires Storage permission to backup Apps to storage. Click "Grant Permissions" below and press "Allow".  </string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to activity_main -->

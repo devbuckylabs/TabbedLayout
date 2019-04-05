@@ -9,24 +9,47 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:layout_margin="30dp"
+        android:layout_weight="1"
+        android:background="@drawable/permission_bg"
         android:orientation="vertical">
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:gravity="center"
+            android:layout_marginTop="100dp"
+            android:lineSpacingMultiplier="1.5"
+            android:textColor="@color/white"
             android:text="@string/permission_text"
             android:textSize="18sp" />
 
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginBottom="30dp"
+        android:layout_marginRight="30dp"
+
+
+        >
+
         <Button
             android:id="@+id/button"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center"
-            android:text="Grant Permission" />
+            android:layout_gravity="center"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="@string/grant_permission"
+            android:textColor="@color/white" />
 
     </LinearLayout>
 
