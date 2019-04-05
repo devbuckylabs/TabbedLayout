@@ -29,7 +29,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -63,7 +62,9 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     private Context context;
     private ProgressBar progressBar;
     private boolean isAutoBackupNotify;
-
+    public static int LAUNCH_COUNT = 0;
+    public boolean isNeverRate;
+    private DialogManager dialogManager;
     public Fragment_1() {
         // Required empty public constructor
     }
@@ -82,8 +83,11 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         isOverride = false;
         isAutoBackup = false;
         isAutoBackupNotify = false;
+        isNeverRate = false;
         handler = new Handler(getMainLooper());
         apks = new ArrayList<>();
+        dialogManager = new DialogManager(context);
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
         progressBar = v.findViewById(R.id.progressBar1);
         rootPath = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/App_Backup_Pro/";
@@ -104,6 +108,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         setHasOptionsMenu(true);
     }
 
+
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -114,7 +119,15 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        LAUNCH_COUNT += 1;
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("launch_count", LAUNCH_COUNT);
+        editor.commit();
+
+        int temp_launch_count = preferences.getInt("launch_count", 1);
+        Log.d("LaunchCounter", temp_launch_count + "  ");
         populateRcInit();
+
 
     }
 
@@ -175,11 +188,11 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
 
     public void getPreferences() {
-        preferences = PreferenceManager.getDefaultSharedPreferences(context);
         isSys = preferences.getBoolean("show_sys_apps", false);
         isOverride = preferences.getBoolean("override", false);
         isAutoBackup = preferences.getBoolean("auto_backup", false);
         isAutoBackupNotify = preferences.getBoolean("auto_backup_notify", true);
+        isNeverRate = preferences.getBoolean("never_rate", false);
 
     }
 
@@ -281,56 +294,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     }
 
 
-    /*public void backupApks() {
 
-        Log.e("Apksssssssss", apks.toString());
-        for (Apk apk : apks) {
-
-            if (apk.isChecked()) {
-                writeData(apk);
-                updateStatus(apk);
-
-            }
-
-        }
-        Toasty.success(context, "Archived", Toast.LENGTH_SHORT, true).show();
-        uncheckAllBoxes();
-
-    }
-*/
-
-    /*public void writeData(Apk apk) {
-
-        try {
-            File f1 = new File(apk.getSourceDirectory());
-
-            String file_name = apk.getAppName();
-            File f2 = new File(rootPath);
-            if (!f2.exists()) {
-                f2.mkdirs();
-            }
-
-            f2 = new File(rootPath + "/" + file_name + ".apk");
-            f2.createNewFile();
-            InputStream in = new FileInputStream(f1);
-            FileOutputStream out = new FileOutputStream(f2);
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            Log.e("BackUp Complete ", file_name);
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-
-            Log.e("Exception", "********************************************* ");
-            e.printStackTrace();
-        }
-
-
-    }
-*/
     private void updateStatus(Apk apk) {
 
         apk.setAppStatus("Archived");
@@ -410,6 +374,18 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         }
 
     }
+
+    public void rate(boolean neverRate) {
+
+        if (!neverRate) {
+
+            if (LAUNCH_COUNT % 10 == 0) {
+                dialogManager.alertDialogRate("Rate this app", "If you enjoy using this app, would you mind taking a moment to rate it? It wont't take more than a minute. Thanks for your support!");
+            }
+
+        }
+    }
+
 
 
     class BackupHelper extends AsyncTask<Apk, Integer, String> {
@@ -544,6 +520,9 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
             checkBox_selectAll.setChecked(false);
             Toasty.success(context, "Archived", Toast.LENGTH_SHORT, true).show();
             refresh();
+            Log.e("isNeverRate", isNeverRate + "");
+            isNeverRate = preferences.getBoolean("never_rate", false);
+            rate(isNeverRate);
 
         }
     }
