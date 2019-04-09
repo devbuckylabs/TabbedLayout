@@ -1,18 +1,26 @@
 package com.buckylabs.tabbedlayoutexp;
 
 
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.DocumentsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,6 +39,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.InputStream;
@@ -39,7 +48,9 @@ import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 
+import static android.content.ContentValues.TAG;
 import static android.os.Looper.getMainLooper;
+import static android.support.v4.graphics.TypefaceCompatUtil.closeQuietly;
 import static android.widget.GridLayout.HORIZONTAL;
 import static android.widget.GridLayout.VERTICAL;
 
@@ -58,6 +69,8 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     private CheckBox checkBox_selectAll;
     private SharedPreferences preferences;
     private String rootPath;
+    private String rootPathSd;
+    private String childDirectoryUri;
     private Handler handler;
     private Context context;
     private ProgressBar progressBar;
@@ -65,6 +78,8 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     public static int LAUNCH_COUNT = 0;
     public boolean isNeverRate;
     private DialogManager dialogManager;
+    public static final int REQUEST_CODE_OPEN_DIRECTORY = 1;
+    private static final int WRITE_REQUEST_CODE = 43;
     public Fragment_1() {
         // Required empty public constructor
     }
@@ -91,6 +106,8 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         progressBar = v.findViewById(R.id.progressBar1);
         rootPath = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/App_Backup_Pro/";
+        rootPathSd = "";
+        childDirectoryUri = "";
         return v;
 
 
@@ -101,6 +118,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        sdcardPathSetter();
         initRecyclerView();
         createDirectory();
         getPreferences();
@@ -108,6 +126,137 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         setHasOptionsMenu(true);
     }
 
+    private void sdcardPathSetter() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        startActivityForResult(intent, REQUEST_CODE_OPEN_DIRECTORY);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_OPEN_DIRECTORY && resultCode == Activity.RESULT_OK) {
+            Uri treeUri = data.getData();
+            Uri docUri = DocumentsContract.buildDocumentUriUsingTree(treeUri,
+                    DocumentsContract.getTreeDocumentId(treeUri));
+            ContentResolver contentResolver = getActivity().getContentResolver();
+            Cursor docCursor = contentResolver.query(docUri, new String[]{
+                    DocumentsContract.Document.COLUMN_DISPLAY_NAME, DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null);
+            try {
+                while (docCursor.moveToNext()) {
+                    Log.d(TAG, "found doc =" + docCursor.getString(0) + ", mime=" + docCursor
+                            .getString(1));
+                    rootPathSd = String.valueOf(data.getData());
+
+                    Log.e("Straw", rootPathSd);
+
+                }
+            } finally {
+                closeQuietly(docCursor);
+            }
+
+            Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri,
+                    DocumentsContract.getTreeDocumentId(treeUri));
+            Cursor childCursor = contentResolver.query(childrenUri, new String[]{
+                    DocumentsContract.Document.COLUMN_DISPLAY_NAME, DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null);
+            try {
+                boolean isDirectoryCreated = false;
+
+                while (childCursor.moveToNext()) {
+                    Log.d(TAG, "found child=" + childCursor.getString(0) + ", mime=" + childCursor
+                            .getString(1));
+                    if (childCursor.getString(0).equals("App_Backup_Pro")) {
+                        Log.d(TAG, "Directory exists");
+                        isDirectoryCreated = true;
+
+                        return;
+                    }
+                }
+
+                if (!isDirectoryCreated) {
+                    Log.d(TAG, "Directory Created");
+                    createDirectoryInSD(Uri.parse(rootPathSd), "App_Backup_Pro");
+
+                    createFile(treeUri);
+
+                    Log.d(TAG, "File created");
+
+
+                }
+
+
+            } finally {
+
+                closeQuietly(childCursor);
+            }
+
+
+        }
+
+    }
+
+    void createFile(Uri mCurrentChildUri) {
+        DocumentFile rootPath = DocumentFile.fromTreeUri(context, mCurrentChildUri);
+
+
+        //Works on emulator APi 21 and Api 28
+
+        DocumentFile dir = rootPath.findFile("App_Backup_Pro");
+        dir.createFile("application/vnd.android.package-archive", "OFFtime");
+
+
+        /* ContentResolver contentResolver=getActivity().getContentResolver();
+        Uri docUri = DocumentsContract.buildDocumentUriUsingTree(mCurrentChildUri,
+                DocumentsContract.getTreeDocumentId(mCurrentChildUri));
+        Uri directoryUri;
+        try {
+            directoryUri = DocumentsContract
+                    .createDocument(contentResolver, docUri, "text/plain" , "file");
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }*/
+
+
+    }
+
+
+    void createDirectoryInSD(Uri uri, String directoryName) {
+        ContentResolver contentResolver = getActivity().getContentResolver();
+        Uri docUri = DocumentsContract.buildDocumentUriUsingTree(uri,
+                DocumentsContract.getTreeDocumentId(uri));
+        Uri directoryUri = null;
+        Uri fileUri = null;
+        try {
+            directoryUri = DocumentsContract
+                    .createDocument(contentResolver, docUri, DocumentsContract.Document.MIME_TYPE_DIR, directoryName);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (directoryUri != null) {
+            Log.i(TAG, String.format(
+                    "Created directory : %s, Document Uri : %s, Created directory Uri : %s",
+                    directoryName, docUri, directoryUri));
+            Toast.makeText(getActivity(), String.format("Created a directory [%s]",
+                    directoryName), Toast.LENGTH_SHORT).show();
+        } else {
+            Log.w(TAG, String.format("Failed to create a directory : %s, Uri %s", directoryName,
+                    docUri));
+            Toast.makeText(getActivity(), String.format("Failed to created a directory [%s] : ",
+                    directoryName), Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    public void closeQuietly(AutoCloseable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (RuntimeException rethrown) {
+                throw rethrown;
+            } catch (Exception ignored) {
+            }
+        }
+    }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
