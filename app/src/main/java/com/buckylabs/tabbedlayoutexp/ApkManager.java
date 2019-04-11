@@ -16,9 +16,12 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -194,6 +197,73 @@ public class ApkManager {
         }
     }
 
+    public void getApksToSharewithName(List<Apk> apks) {
+        File directory = null;
+        try {
+            directory = new File(context.getExternalCacheDir() + "/ExtractedApks");
+            if (!directory.isDirectory()) {
+                directory.mkdir();
+                Log.e("cacheDirectory", "created new Directory");
+            } else {
+                Log.e("cacheDirectory", "Directory exists");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        List<Uri> shareApks = new ArrayList<>();
+        for (Apk apk : apks) {
+
+            File originalApk = new File(apk.getSourceDirectory());
+            if (directory != null) {
+                File newApk = new File(directory.getAbsolutePath() + "/" + apk.getAppName() + "-v" + apk.getAppVersionName() + ".apk");
+
+                try {
+                    InputStream in = new FileInputStream(originalApk);
+                    OutputStream out = new FileOutputStream(newApk);
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
+                    in.close();
+                    out.close();
+                    Log.e("cacheCopied", "copied");
+                    Uri uri = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", newApk);
+                    shareApks.add(uri);
+
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        }
+
+        if (shareApks.isEmpty()) {
+            Toast.makeText(context, "Select a app to share ", Toast.LENGTH_SHORT).show();
+        } else {
+
+
+            Log.e("SHAREAPKS", shareApks.size() + "");
+            Intent shareIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+            shareIntent.setType("*/*");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "AppBackupPro");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "great");
+            shareIntent.putExtra(Intent.EXTRA_EMAIL, "Checkout my app");
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            shareIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, (ArrayList<? extends Parcelable>) shareApks);
+            context.startActivity(Intent.createChooser(shareIntent, "Share app via"));
+
+
+        }
+    }
+
     public void shareApkLink(String packageName) {
         StringBuilder marketLink = new StringBuilder();
         marketLink.append("https://play.google.com/store/apps/details?id=");
@@ -224,6 +294,7 @@ public class ApkManager {
 
 
     }
+
 
     public void restoreApk(Apk apk) {
 
@@ -280,6 +351,7 @@ public class ApkManager {
                 return true;
             } else {
                 Toast.makeText(context, "App already backed up", Toast.LENGTH_SHORT).show();
+                Log.e("APkManager", "App already backed up");
             }
         } catch (Exception e) {
 

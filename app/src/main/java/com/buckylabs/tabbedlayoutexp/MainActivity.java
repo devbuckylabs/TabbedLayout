@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton refresh_Btn;
     private ImageButton share_Btn;
     private SharedPreferences preferences;
+    private Service br;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         share_Btn = findViewById(R.id.share);
 
 
-        Service br = new Service();
+        br = new Service();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         // intentFilter.addAction(Intent.ACTION_PACKAGE_INSTALL);
@@ -188,6 +189,14 @@ public class MainActivity extends AppCompatActivity {
         super.onBackPressed();
         Toast.makeText(this, "Back", Toast.LENGTH_SHORT).show();
         finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (br != null) {
+            unregisterReceiver(br);
+        }
+        super.onDestroy();
     }
 
     private void setupViewPager (ViewPager mViewPager){

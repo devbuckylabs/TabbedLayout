@@ -1,26 +1,18 @@
 package com.buckylabs.tabbedlayoutexp;
 
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.DocumentsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.provider.DocumentFile;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -37,23 +29,17 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 
-import static android.content.ContentValues.TAG;
 import static android.os.Looper.getMainLooper;
-import static android.support.v4.graphics.TypefaceCompatUtil.closeQuietly;
 import static android.widget.GridLayout.HORIZONTAL;
 import static android.widget.GridLayout.VERTICAL;
 
@@ -72,8 +58,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     private CheckBox checkBox_selectAll;
     private SharedPreferences preferences;
     private String rootPath;
-    private String rootPathSd;
-    private String childDirectoryUri;
     private Handler handler;
     private Context context;
     private ProgressBar progressBar;
@@ -81,9 +65,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     public static int LAUNCH_COUNT = 0;
     public boolean isNeverRate;
     private DialogManager dialogManager;
-    public static final int REQUEST_CODE_OPEN_DIRECTORY = 1;
-    private static final int WRITE_REQUEST_CODE = 43;
-
     public Fragment_1() {
         // Required empty public constructor
     }
@@ -110,8 +91,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         progressBar = v.findViewById(R.id.progressBar1);
         rootPath = Environment.getExternalStorageDirectory()
                 .getAbsolutePath() + "/App_Backup_Pro/";
-        rootPathSd = "";
-        childDirectoryUri = "";
         return v;
 
 
@@ -122,48 +101,11 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        sdcardPathSetter();
         initRecyclerView();
         createDirectory();
         getPreferences();
         registerForContextMenu(recyclerView);
         setHasOptionsMenu(true);
-    }
-
-    private void sdcardPathSetter() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        startActivityForResult(intent, REQUEST_CODE_OPEN_DIRECTORY);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_OPEN_DIRECTORY && resultCode == Activity.RESULT_OK) {
-            Uri treeUri = data.getData();
-            rootPathSd = String.valueOf(data.getData());
-            Log.d(TAG, treeUri + "");
-            boolean isDirectoryCreated = false;
-            DocumentFile documentFile = DocumentFile.fromTreeUri(context, treeUri);
-            for (DocumentFile file : documentFile.listFiles()) {
-                Log.d(TAG, file.getName());
-                if (file.getName().equals("App_Backup_Pro")) {
-                    isDirectoryCreated = true;
-                    Log.d(TAG, "Directory already exists");
-                    return;
-                }
-            }
-            DocumentFile dir;
-            if (!isDirectoryCreated) {
-                dir = documentFile.createDirectory("App_Backup_Pro");
-                Log.d(TAG, "Directory created successfully");
-                Log.d(TAG, dir.getParentFile().getName());
-
-
-            }
-
-
-        }
-
     }
 
 
@@ -352,6 +294,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     }
 
 
+
     private void updateStatus(Apk apk) {
 
         apk.setAppStatus("Archived");
@@ -408,7 +351,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         }
 
         ApkManager manager = new ApkManager(context);
-        manager.getApksToShare(shareApks);
+        manager.getApksToSharewithName(shareApks);
         uncheckAllBoxes();
 
     }
@@ -443,6 +386,12 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         }
     }
 
+    @Override
+    public void onDestroy() {
+
+        Log.e("OnDestroy", "");
+        super.onDestroy();
+    }
 
     class BackupHelper extends AsyncTask<Apk, Integer, String> {
 
@@ -474,9 +423,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
             progressDialog.setMax(listApks.length);
             int k = 1;
             int i = 1;
-            DocumentFile root = DocumentFile.fromTreeUri(context, Uri.parse(rootPathSd));
-            //Works on emulator APi 21 and Api 28
-            DocumentFile dir = root.findFile("App_Backup_Pro");
             for (final Apk apk : listApks) {
                 {
                     progressDialog.setProgress(0);
@@ -493,12 +439,11 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
                         try {
                             File f1 = new File(apk.getSourceDirectory());
-
-                            //  File f2 = new File(rootPath);
-                            /*if (!f2.exists()) {
+                            File f2 = new File(rootPath);
+                            if (!f2.exists()) {
                                 f2.mkdirs();
-                            }*/
-                            /*if (isOverride) {
+                            }
+                            if (isOverride) {
                                 File[] files = f2.listFiles(new FilenameFilter() {
                                     @Override
                                     public boolean accept(File dir, String name) {
@@ -519,25 +464,24 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                                     f.delete();
                                     isDeleted = true;
                                 }
-                            }*/
-
-                            DocumentFile newFile = dir.createFile("application/vnd.android.package-archive", apk.getAppName());
-
-
-                            InputStream in = new FileInputStream(f1);
-                            OutputStream out = context.getContentResolver().openOutputStream(newFile.getUri());
-                            byte[] buf = new byte[1024];
-                            int len;
-                            while ((len = in.read(buf)) > 0) {
-                                out.write(buf, 0, len);
                             }
-                            //   Log.e("BackUp Complete ", file_name);
-                            out.flush();
-                            out.close();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+
+                            f2 = new File(rootPath + "/" + Appname);
+
+                            if (!f2.exists()) {
+
+                                f2.createNewFile();
+                                InputStream in = new FileInputStream(f1);
+                                FileOutputStream out = new FileOutputStream(f2);
+                                byte[] buf = new byte[1024];
+                                int len;
+                                while ((len = in.read(buf)) > 0) {
+                                    out.write(buf, 0, len);
+                                }
+                                //   Log.e("BackUp Complete ", file_name);
+                                out.flush();
+                                out.close();
+                            }
                         } catch (Exception e) {
 
                             // Log.e("Exception", "********************************************* ");

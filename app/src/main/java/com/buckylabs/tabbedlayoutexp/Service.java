@@ -42,6 +42,8 @@ public class Service extends BroadcastReceiver {
         isAutoBackup = preferences.getBoolean("auto_backup", true);
         isAutoBackupNotify = preferences.getBoolean("auto_backup_notify", true);
         pm = context.getPackageManager();
+        Log.e("%%%Service", "pref isAutoBackup  " + isAutoBackup);
+        Log.e("%%%Service", "pref isAutoBackupNotify  " + isAutoBackupNotify);
 
         String packageName = intent.getData().getEncodedSchemeSpecificPart();
         PackageInfo packageInfo;
@@ -64,12 +66,17 @@ public class Service extends BroadcastReceiver {
                 Boolean isBackup = manager.backupApk(apk);
                 Toast.makeText(context, "Auto Backup Completed", Toast.LENGTH_SHORT).show();
                 Log.e("%%%Service", "Auto Backup Completed");
-                if (isBackup && isAutoBackupNotify) {
+                if (isAutoBackupNotify) {
                     NotifManager notifManager = new NotifManager(context);
                     notifManager.displayNotification(Appname);
+                    Log.e("%%%Service", "Notifaction sent");
+                } else {
+                    Log.e("%%%Service", "Notifaction not sent");
                 }
             }
 
+        } else {
+            Log.e("%%%Service", "Auto Backup not enabled ");
         }
 
 
