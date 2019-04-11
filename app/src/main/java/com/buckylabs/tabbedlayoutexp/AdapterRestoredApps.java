@@ -29,11 +29,12 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
 
     private List<Apk> apks;
     private Context context;
-    private String rootPath;
+
 
     public AdapterRestoredApps(Context context, List<Apk> apks) {
         this.apks = apks;
         this.context = context;
+
 
     }
 
@@ -42,8 +43,7 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
     public AdapterRestoredApps.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
         View v = LayoutInflater.from(context).inflate(R.layout.list_item_restore, viewGroup, false);
-        rootPath = Environment.getExternalStorageDirectory()
-                .getAbsolutePath() + "/App_Backup_Pro/";
+
         return new AdapterRestoredApps.ViewHolder(v);
     }
 
@@ -163,7 +163,7 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
 
                     StringBuilder details = new StringBuilder();
                     details.append("Path : ");
-                    details.append(rootPath);
+                    details.append(Constant.rootpath);
                     details.append(apk.getAppName());
                     details.append("-");
                     details.append(apk.getAppPackage());
@@ -251,7 +251,7 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
                 public void onClick(DialogInterface dialog, int which) {
 
 
-                    File file = new File(rootPath, Appname);
+                    File file = new File(Constant.rootpath, Appname);
                     if (file.exists()) {
                         file.delete();
                         notifyItemRemoved(getAdapterPosition());

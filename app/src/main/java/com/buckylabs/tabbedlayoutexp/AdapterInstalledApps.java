@@ -24,7 +24,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
 
     private List<Apk> apks;
     private Context context;
-    private String rootPath;
+
 
     public AdapterInstalledApps(Context context, List<Apk> apks) {
         this.apks = apks;
@@ -37,8 +37,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
     public AdapterInstalledApps.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
         View v = LayoutInflater.from(context).inflate(R.layout.listitem, viewGroup, false);
-        rootPath = Environment.getExternalStorageDirectory()
-                .getAbsolutePath() + "/App_Backup_Pro/";
+
         return new ViewHolder(v);
     }
 

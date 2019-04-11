@@ -16,13 +16,11 @@ import java.util.List;
 public class DialogManager {
 
     private Context context;
-    private String rootPath;
     SharedPreferences preferences;
 
     public DialogManager(Context context) {
         this.context = context;
-        rootPath = Environment.getExternalStorageDirectory()
-                .getAbsolutePath() + "/App_Backup_Pro/";
+
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
@@ -102,7 +100,7 @@ public class DialogManager {
             public void onClick(DialogInterface dialog, int which) {
 
 
-                File file = new File(rootPath, Appname);
+                File file = new File(Constant.rootpath, Appname);
                 if (file.exists()) {
                     file.delete();
                 }
@@ -134,7 +132,7 @@ public class DialogManager {
             public void onClick(DialogInterface dialog, int which) {
 
                 for (String Appname : appnames) {
-                    File file = new File(rootPath, Appname);
+                    File file = new File(Constant.rootpath, Appname);
                     if (file.exists()) {
                         file.delete();
                     }

@@ -57,7 +57,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     private AdapterInstalledApps adapter;
     private CheckBox checkBox_selectAll;
     private SharedPreferences preferences;
-    private String rootPath;
     private Handler handler;
     private Context context;
     private ProgressBar progressBar;
@@ -89,8 +88,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         dialogManager = new DialogManager(context);
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         progressBar = v.findViewById(R.id.progressBar1);
-        rootPath = Environment.getExternalStorageDirectory()
-                .getAbsolutePath() + "/App_Backup_Pro/";
+
         return v;
 
 
@@ -328,7 +326,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
 
     public void createDirectory() {
-        File f2 = new File(rootPath);
+        File f2 = new File(Constant.rootpath);
         if (!f2.exists()) {
             f2.mkdirs();
         }
@@ -439,7 +437,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
 
                         try {
                             File f1 = new File(apk.getSourceDirectory());
-                            File f2 = new File(rootPath);
+                            File f2 = new File(Constant.rootpath);
                             if (!f2.exists()) {
                                 f2.mkdirs();
                             }
@@ -466,7 +464,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
                                 }
                             }
 
-                            f2 = new File(rootPath + "/" + Appname);
+                            f2 = new File(Constant.rootpath + "/" + Appname);
 
                             if (!f2.exists()) {
 

@@ -33,13 +33,11 @@ public class ApkManager {
 
     private Context context;
     private PackageManager pm;
-    private String rootPath;
 
     public ApkManager(Context context) {
         this.context = context;
         pm = context.getPackageManager();
-        rootPath = Environment.getExternalStorageDirectory()
-                .getAbsolutePath() + "/App_Backup_Pro/";
+
     }
 
 
@@ -81,8 +79,7 @@ public class ApkManager {
     public List<Apk> getArchivedApks() {
 
         List<Apk> archivedApks = new ArrayList<>();
-        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/App_Backup_Pro";
-        File directory = new File(path);
+        File directory = new File(Constant.rootpath);
         File[] files = directory.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
@@ -91,7 +88,7 @@ public class ApkManager {
         });
         for (File file : files) {
             Log.e("Archive FilesName", "" + file.getName());
-            PackageInfo packinfo = pm.getPackageArchiveInfo(path + "/" + file.getName(), 0);
+            PackageInfo packinfo = pm.getPackageArchiveInfo(Constant.rootpath + "/" + file.getName(), 0);
             ApplicationInfo info;
             try {
                 info = pm.getApplicationInfo(packinfo.packageName, PackageManager.GET_META_DATA);
@@ -300,7 +297,7 @@ public class ApkManager {
 
         String Appname = appNameGenerator(apk);
 
-        File file = new File(rootPath, Appname);
+        File file = new File(Constant.rootpath, Appname);
 
         if (Build.VERSION.SDK_INT >= 24) {
 
@@ -329,12 +326,12 @@ public class ApkManager {
             String Appname = appNameGenerator(apk);
             File f1 = new File(apk.getSourceDirectory());
 
-            File f2 = new File(rootPath);
+            File f2 = new File(Constant.rootpath);
             if (!f2.exists()) {
                 f2.mkdirs();
             }
 
-            f2 = new File(rootPath + "/" + Appname);
+            f2 = new File(Constant.rootpath + "/" + Appname);
 
             if (!f2.exists()) {
                 f2.createNewFile();
