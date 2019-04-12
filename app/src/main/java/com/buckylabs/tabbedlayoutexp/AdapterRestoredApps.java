@@ -273,7 +273,6 @@ public class AdapterRestoredApps extends RecyclerView.Adapter<AdapterRestoredApp
         }
 
 
-
     }
 
 

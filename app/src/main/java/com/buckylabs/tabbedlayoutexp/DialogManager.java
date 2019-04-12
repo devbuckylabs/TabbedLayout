@@ -121,7 +121,7 @@ public class DialogManager {
     }
 
 
-    public void alertDialogDeleteMultiple(final List<String> appnames) {
+    public void alertDialogDeleteMultiple(final List<Apk> applist) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
         alertDialog.setMessage("Do you want to delete selected archive ?");
         alertDialog.setTitle("Confirm Delete");
@@ -130,11 +130,13 @@ public class DialogManager {
         alertDialog.setPositiveButton("ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
-                for (String Appname : appnames) {
+                ApkManager manager = new ApkManager(context);
+                for (Apk apk : applist) {
+                    String Appname = manager.appNameGenerator(apk);
                     File file = new File(Constant.rootpath, Appname);
                     if (file.exists()) {
                         file.delete();
+
                     }
 
 

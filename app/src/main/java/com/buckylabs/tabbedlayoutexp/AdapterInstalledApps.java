@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -46,7 +47,6 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
     public void onBindViewHolder(@NonNull AdapterInstalledApps.ViewHolder viewHolder, int i) {
 
         final Apk apk = apks.get(i);
-
         viewHolder.appName.setText(apk.getAppName());
         viewHolder.appIcon.setImageDrawable(apk.getAppIcon());
         viewHolder.appversion.setText("v" + apk.getAppVersionName());
@@ -75,6 +75,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener, View.OnCreateContextMenuListener {
 
+
         TextView appName;
         TextView appStatus;
         TextView appversion;
@@ -84,6 +85,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+
             appName = itemView.findViewById(R.id.app_name_Text);
             appversion = itemView.findViewById(R.id.app_version_name_text);
             appsize = itemView.findViewById(R.id.appSize_text);
@@ -174,6 +176,7 @@ public class AdapterInstalledApps extends RecyclerView.Adapter<AdapterInstalledA
 
                     Toast.makeText(context, "Uninstall", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(Intent.ACTION_DELETE);
+                    intent.putExtra("pos", getAdapterPosition());
                     intent.setData(Uri.parse("package:" + apks.get(getAdapterPosition()).getAppPackage()));
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);

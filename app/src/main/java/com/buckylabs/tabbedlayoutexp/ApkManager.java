@@ -131,6 +131,7 @@ public class ApkManager {
         File file1 = new File(packinfo.applicationInfo.sourceDir);
         String Appsize = getAppSize(file1.length());
         boolean isChecked = false;
+
         Apk apk = new Apk(AppName, AppIcon, AppPackage, AppStatus, AppVersionName, date, Appsize, sourcedirectory, isChecked);
 
         return apk;
@@ -372,9 +373,9 @@ public class ApkManager {
         return Appname.toString();
     }
 
-    public void uninstallApks(List<Apk> apks) {
+    public void uninstallApks(List<Apk> listapks) {
 
-        for (Apk apk : apks) {
+        for (Apk apk : listapks) {
             Intent intent = new Intent(Intent.ACTION_DELETE);
             intent.setData(Uri.parse("package:" + apk.getAppPackage()));
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

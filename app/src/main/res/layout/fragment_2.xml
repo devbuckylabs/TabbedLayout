@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".Fragment_2">
 
@@ -22,6 +23,30 @@
             android:id="@+id/recyclerViewRestore"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <com.github.clans.fab.FloatingActionMenu
+            android:id="@+id/floatingMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end">
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab_button_move"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_sync_black_24dp"
+                fab:fab_size="mini"
+                fab:fab_label="Move Apps to External SD card" />
+
+            <com.github.clans.fab.FloatingActionButton
+                android:id="@+id/fab_button_scan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_sync_black_24dp"
+                fab:fab_size="mini"
+                fab:fab_label="Scan Apks" />
+
+        </com.github.clans.fab.FloatingActionMenu>
     </FrameLayout>
 
 

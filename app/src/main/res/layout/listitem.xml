@@ -79,7 +79,6 @@
         </LinearLayout>
 
 
-
     </LinearLayout>
 
     <CheckBox
@@ -95,7 +94,6 @@
         android:scaleY="1.2"
         android:backgroundTint="?attr/checkbox_tintcolor"
         />
-
 
 
 </LinearLayout>

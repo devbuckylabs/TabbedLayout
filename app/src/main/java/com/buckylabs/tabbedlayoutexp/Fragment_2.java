@@ -1,8 +1,10 @@
 package com.buckylabs.tabbedlayoutexp;
 
 
-
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +15,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,10 +27,18 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+
+
 import static android.os.Looper.getMainLooper;
 import static android.widget.GridLayout.HORIZONTAL;
 import static android.widget.GridLayout.VERTICAL;
@@ -46,6 +57,9 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
     private CheckBox checkBox_selectAll;
     private Context context;
     private ProgressBar progressBar;
+    private FloatingActionMenu floatingActionMenu;
+    private FloatingActionButton fabScan;
+    private FloatingActionButton fabmove;
 
 
     public Fragment_2() {
@@ -63,7 +77,9 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
         apks = new ArrayList<>();
         handler = new Handler(getMainLooper());
         progressBar = v.findViewById(R.id.progressBar2);
-
+        floatingActionMenu = v.findViewById(R.id.floatingMenu);
+        fabScan = v.findViewById(R.id.fab_button_scan);
+        fabmove = v.findViewById(R.id.fab_button_move);
 
         return v;
     }
@@ -77,6 +93,23 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
         registerForContextMenu(recyclerViewRestore);
         setHasOptionsMenu(true);
 
+        fabScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Toast.makeText(context, "Scan", Toast.LENGTH_SHORT).show();
+
+                Intent i = new Intent(context, Scanner.class);
+                startActivity(i);
+
+            }
+        });
+        fabmove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(context, "Move", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
@@ -255,22 +288,57 @@ public class Fragment_2 extends Fragment implements SearchView.OnQueryTextListen
 
     public void deleteApks() {
 
-        List<String> appnames = new ArrayList<>();
+        List<Apk> applist = new ArrayList<>();
         ApkManager manager = new ApkManager(context);
         DialogManager dialogManager = new DialogManager(context);
         for (Apk apk : apks) {
             if (apk.isChecked()) {
-                String Appname = manager.appNameGenerator(apk);
-                appnames.add(Appname);
+                applist.add(apk);
             }
         }
-        if (appnames.isEmpty()) {
+        if (applist.isEmpty()) {
             Toast.makeText(context, "Select a app to delete", Toast.LENGTH_SHORT).show();
         } else {
-            dialogManager.alertDialogDeleteMultiple(appnames);
+            alertDialogDeleteMultiple(applist);
 
         }
     }
+
+    public void alertDialogDeleteMultiple(final List<Apk> applist) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+        alertDialog.setMessage("Do you want to delete selected archive ?");
+        alertDialog.setTitle("Confirm Delete");
+        alertDialog.create();
+
+        alertDialog.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ApkManager manager = new ApkManager(context);
+                for (Apk apk : applist) {
+                    String Appname = manager.appNameGenerator(apk);
+                    File file = new File(Constant.rootpath, Appname);
+                    if (file.exists()) {
+                        file.delete();
+
+                    }
+
+
+                }
+                dialog.dismiss();
+            }
+        });
+
+        alertDialog.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                dialog.dismiss();
+
+            }
+        });
+        alertDialog.show();
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 
