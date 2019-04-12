@@ -3,6 +3,7 @@ package com.buckylabs.tabbedlayoutexp;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
@@ -29,6 +30,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -38,7 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import es.dmoral.toasty.Toasty;
-
 import static android.os.Looper.getMainLooper;
 import static android.widget.GridLayout.HORIZONTAL;
 import static android.widget.GridLayout.VERTICAL;
@@ -64,6 +65,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     public static int LAUNCH_COUNT = 0;
     public boolean isNeverRate;
     private DialogManager dialogManager;
+
     public Fragment_1() {
         // Required empty public constructor
     }
@@ -224,7 +226,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
             apks.add(apk1);
 
         }
-
+        Log.e("apks", apks.toString());
         refresh();
 
     }
@@ -238,6 +240,7 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         SearchView searchView = (SearchView) searchItem.getActionView();
         searchView.setOnQueryTextListener(this);
         searchView.setQueryHint("Search...");
+
 
         MenuItem uninstallItem = menu.findItem(R.id.uninstall_item);
         uninstallItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -290,7 +293,6 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
         BackupHelper backupHelper = new BackupHelper(context);
         backupHelper.execute(arrayApk);
     }
-
 
 
     private void updateStatus(Apk apk) {
@@ -357,12 +359,20 @@ public class Fragment_1 extends Fragment implements SearchView.OnQueryTextListen
     public void uninstallApks() {
 
         List<Apk> listapks = new ArrayList<>();
+
         for (Apk apk : apks) {
             if (apk.isChecked()) {
                 listapks.add(apk);
+                Log.e("Uninstall", apk.toString());
+            }
+            if (listapks.size() == 6) {
+                Toast.makeText(context, "You can uninstall only 5 apps at a time", Toast.LENGTH_SHORT).show();
+                Log.e("Uninstall", "Max reached");
+                return;
             }
 
         }
+        Log.e("List Uninstall", listapks.toString());
         if (listapks.isEmpty()) {
             Toast.makeText(context, "Select a app to uninstall", Toast.LENGTH_SHORT).show();
         } else {
